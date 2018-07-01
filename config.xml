@@ -1,0 +1,70 @@
+<?xml version="1.0"?>
+<!--This file represents user settings about package information that will be packaged into vxp(MRE2.0)-->
+<packageinfo>
+  <userinfo>
+    <developer>MacDue</developer>
+    <appversion>0.1.0</appversion>
+    <APPID>-1</APPID>
+    <iconName>
+    </iconName>
+  </userinfo>
+  <APIAuth>
+    <category>TCP</category>
+    <category>Sensor</category>
+    <category>SMS(person)</category>
+    <category>BitStream</category>
+    <category>Contact</category>
+    <category>MMS</category>
+    <category>SMSMng</category>
+  </APIAuth>
+  <targetconfig>
+    <supportbg>unchecked</supportbg>
+    <userfont>unchecked</userfont>
+    <screenrotate>unchecked</screenrotate>
+    <autoadaptable>unchecked</autoadaptable>
+    <mem>500</mem>
+    <usesysmemory>unchecked</usesysmemory>
+    <sysdisk>
+    </sysdisk>
+    <Push>unchecked</Push>
+    <PushID>-1</PushID>
+    <PushSenderID>
+    </PushSenderID>
+    <autostart>unchecked</autostart>
+    <TransferImg>unchecked</TransferImg>
+    <idleshortcut>unchecked</idleshortcut>
+  </targetconfig>
+  <namelist>
+    <english>Little Dues</english>
+    <chinese>Little Dues</chinese>
+    <cht>Little Dues</cht>
+  </namelist>
+  <operationinfo>
+    <content>content</content>
+    <imsi>1234567890</imsi>
+  </operationinfo>
+  <paymentlib>
+    <version>Internal</version>
+    <smskey>1234567890</smskey>
+  </paymentlib>
+  <output>
+    <type>0</type>
+  </output>
+  <resolution>
+    <Width>176</Width>
+    <Height>220</Height>
+  </resolution>
+  <vxp>
+    <mreversion>30</mreversion>
+    <venus>__VENUS_CHECKED__</venus>
+  </vxp>
+  <font>
+    <size>12</size>
+  </font>
+  <image>
+  </image>
+  <icon>
+    <path>
+    </path>
+  </icon>
+</packageinfo>

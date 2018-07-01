@@ -1,0 +1,4 @@
+<APP id="APP_WatchDue">
+    <RESOLUTION width="176" height="220" class="image" />
+    <STRING>.\res\ref_list_WatchDue.txt</STRING>
+</APP>
