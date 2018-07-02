@@ -12644,12 +12644,19 @@ nk_do_progress(nk_flags *state,
     if (!out || !style) return 0;
 
     /* calculate progressbar cursor */
-    cursor.w = NK_MAX(bounds.w, 2 * style->padding.x + 2 * style->border);
+
+	cursor.w = NK_MAX(bounds.w, 2 * style->padding.x + 2 * style->border);
     cursor.h = NK_MAX(bounds.h, 2 * style->padding.y + 2 * style->border);
+
     cursor = nk_pad_rect(bounds, nk_vec2(style->padding.x + style->border, style->padding.y + style->border));
     prog_scale = (float)value / (float)max;
+#ifdef NORMAL_PROGRESS_BAR
     cursor.w = (bounds.w - 2) * prog_scale;
-
+#else
+	cursor.y += cursor.h;
+	cursor.h = (bounds.h - 2) * prog_scale;
+	cursor.y -= cursor.h;
+#endif
     /* update progressbar */
     prog_value = NK_MIN(value, max);
     prog_value = nk_progress_behavior(state, in, bounds, max, prog_value, modifiable);

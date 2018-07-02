@@ -800,7 +800,7 @@
 		VMUINT8 *buffer;
 
 		struct frame_prop * frame_ptr = NULL;
-		SPAM(("image path %s\n",img.path));
+		SPAM(("\nimage path '%s'\n",img.path));
 		res_data = vm_load_resource(img.path, &res_size); 
 		
 		if (res_data == NULL) {
@@ -1302,8 +1302,9 @@
 #endif
 
 
-void nk_mre_set_view(nk_view_func view) {
+void nk_mre_set_view(struct nk_context* ctx, nk_view_func view) {
 	mre_view.current = view;
+	nk_input_begin(ctx);
 }
 
 void update_gui(){

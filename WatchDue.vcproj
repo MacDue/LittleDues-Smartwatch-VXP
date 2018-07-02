@@ -248,6 +248,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\pet_item_screen.h"
+				>
+			</File>
+			<File
 				RelativePath=".\share.h"
 				>
 			</File>
