@@ -47,7 +47,11 @@ HEADER_FILES= \
 
 	./nuklear_mre.h \
 
+	./pet_item_screen.h \
+
 	./share.h \
+
+	./view_declarations.h \
 
 	./watch_due_main_view.h \
 

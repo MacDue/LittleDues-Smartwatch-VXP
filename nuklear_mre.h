@@ -280,6 +280,8 @@
 		//Have the layer handle ready.. layer_hdl
 		//Maybe as global or passed here..
 
+		if (col.a == 0) return;
+
 		/* 
 			get the target buffer from the layer
 		*/
@@ -319,6 +321,8 @@
 		VMUINT16 color;
 		VMINT REC_X, REC_Y, REC_W, REC_L;
 
+		if (col.a == 0) return;
+
 		color = convert_color(col);
 		REC_X =	x;
 		REC_Y = y;
@@ -352,6 +356,8 @@
 		VMUINT8 *buffer;
 		VMUINT16 color;
 		VMINT REC_X, REC_Y, REC_W, REC_L;
+
+		if (col.a == 0) return;
 
 		color = convert_color(col);
 		REC_X =	x;
@@ -824,9 +830,11 @@
 			SPAM(("DREW IMAGE?\n"));
 			vm_graphic_release_canvas(hcanvas);
 		} else {
+#ifdef DEBUG
 			char error[20];
 			sprintf(error, "%d\n", hcanvas);
 			nk_mre_draw_text(x,y+h/2,w,h,error,strlen(error), nk_black, nk_red);
+#endif	
 		}
 
 
@@ -1014,7 +1022,14 @@
 			case VM_PEN_EVENT_RELEASE:
 				nk_input_motion(&mre.ctx, x, y);
 				nk_input_button(&mre.ctx, NK_BUTTON_LEFT, x, y, 0);
+				nk_input_button(&mre.ctx, NK_BUTTON_RIGHT, x, y, 0);
 				update_gui();
+				break;
+			case VM_PEN_EVENT_DOUBLE_CLICK:
+				nk_input_motion(&mre.ctx, x, y);
+				nk_input_button(&mre.ctx, NK_BUTTON_RIGHT, x, y, 1);
+				update_gui();
+				nk_input_button(&mre.ctx, NK_BUTTON_RIGHT, x, y, 0);
 				break;
 			case VM_PEN_EVENT_MOVE:
 				nk_input_motion(&mre.ctx, x, y);
@@ -1303,8 +1318,8 @@
 
 
 void nk_mre_set_view(struct nk_context* ctx, nk_view_func view) {
-	mre_view.current = view;
 	nk_input_begin(ctx);
+	mre_view.current = view;
 }
 
 void update_gui(){

@@ -1,3 +1,6 @@
+#ifndef WACH_DUE_MAIN_VIEW_H
+#define WACH_DUE_MAIN_VIEW_H
+
 #include "vmtimer.h"
 
 static int mood_offset = 0;
@@ -25,6 +28,7 @@ watch_due_main_timer_hdl(VMINT tid) {
 	update_gui();
 }
 
+
 static void
 update_pet_frame(VMINT tid) {
 	pet_sprite_index = ++pet_sprite_index % pet_frame_count;
@@ -33,7 +37,7 @@ update_pet_frame(VMINT tid) {
 
 static void 
 watch_due_main_view(struct mre* mre) {
-	static struct nk_color item_btn_color = {218, 59, 89, 255};
+
 	static struct nk_color bg_color = {20, 20, 20, 255};
 	static struct nk_color mood_bar_color = {245, 223, 102, 255};
 	static struct nk_color food_bar_color = {245, 102, 206, 255};
@@ -41,6 +45,7 @@ watch_due_main_view(struct mre* mre) {
 	struct nk_context* ctx = &mre->ctx;
 	struct nk_panel layout;
 	struct nk_image pet_img;
+	nk_int state;
 
 	nk_size cur = 70;
 	static int padding = -1;
@@ -91,21 +96,31 @@ watch_due_main_view(struct mre* mre) {
 			ctx->style.progress.cursor_normal.data.color = mood_bar_color;
 			nk_progress(ctx, &cur, 100, 0);
 			nk_layout_row_push(ctx, 120);
+			ctx->style.button.image_padding.x = 0;
+			ctx->style.button.image_padding.y = 0;
 			pet_img = nk_image_path(flame_sprites[pet_sprite_index]);
 			pet_img.w = pet_img.h = 120;
 			pet_img.scale = 150;
 			pet_img.yo = 35;
-			nk_image(ctx, pet_img);
+			pet_img.xo = -8;
+			nk_button_transparent(ctx);
+			if (nk_button_image(ctx, pet_img) == 3) {
+				nk_mre_set_view(ctx, pet_item_screen);
+			}
 			nk_layout_row_push(ctx, padding);
 			ctx->style.progress.cursor_normal.data.color = food_bar_color;
 			nk_progress(ctx, &cur, 100, 0);
 			nk_layout_row_end(ctx);
 		}
-		ctx->style.button.normal.data.color = item_btn_color;
+		nk_button_default(ctx);
+		ctx->style.button.normal.data.color = btn_color_main;
 		nk_layout_row_static(ctx, mre->height/2 - 60, mre->width, 1);
-		if(nk_button_label(ctx, "ITEMS ")) {
+		if(nk_button_label(ctx, "ITEMS ") == 1) {
+			//printf("%d btn\n", state);
 			nk_mre_set_view(ctx, pet_item_screen);
 		}
 		nk_end(ctx);
 	}
 }
+
+#endif

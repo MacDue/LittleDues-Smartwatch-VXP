@@ -256,6 +256,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\view_declarations.h"
+				>
+			</File>
+			<File
 				RelativePath=".\watch_due_main_view.h"
 				>
 			</File>
