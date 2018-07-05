@@ -1,11 +1,16 @@
-#ifndef PET_ITEM_SCREEN
-#define PET_ITEM_SCREEN
+#ifndef VIEW_PET_ITEM
+#define VIEW_PET_ITEM
 
-#include "view_declarations.h"
+extern struct mre_view_p view_pet_items;
 
+#ifdef VIEWS_SETUP
+
+#include "view_watch_due_main.h"
+
+struct mre_view_p view_pet_items;
 
 static void 
-pet_item_screen(struct mre* mre) {
+view_func_pet_items(struct mre* mre) {
 	struct nk_context* ctx = &mre->ctx;
 	struct nk_panel layout;
 
@@ -19,10 +24,12 @@ pet_item_screen(struct mre* mre) {
 		nk_layout_row_static(ctx, mre->height/2 - 60, mre->width, 1);
 		ctx->style.button.normal.data.color = btn_color_main;
 		if(nk_button_label(ctx, "BACK ") == 1) {
-			nk_mre_set_view(ctx, watch_due_main_view);
+			nk_mre_set_view(ctx, &view_watch_due_main);
 		}
 		nk_end(ctx);
 	}
 }
+
+#endif
 
 #endif

@@ -43,16 +43,14 @@ struct mre {
 /* 
 	MRE View Properties. The list of components and hoverable counter. 
 	The view controller will process through this object.
-*/	
-typedef void (*nk_view_func)(struct mre*);
+*/
+typedef void (*nk_mre_view_setup)(struct mre*);
+typedef void (*nk_mre_view_func)(struct mre*);
+typedef void (*nk_mre_view_cleanup)(struct mre*);
 struct mre_view_p{
-	int hoverable_counter;
-	int hoverable_items;
-	nk_view_func current;
-	//struct mre_nk_c * components;
-	int components_count;
+	nk_mre_view_setup setup;
+	nk_mre_view_func view;
+	nk_mre_view_cleanup cleanup;
 };
-
-
 
 #endif

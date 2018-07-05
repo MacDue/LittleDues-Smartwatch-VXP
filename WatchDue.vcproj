@@ -248,7 +248,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\pet_item_screen.h"
+				RelativePath=".\pet_definitions.h"
 				>
 			</File>
 			<File
@@ -256,11 +256,19 @@
 				>
 			</File>
 			<File
-				RelativePath=".\view_declarations.h"
+				RelativePath=".\view_pet_info.h"
 				>
 			</File>
 			<File
-				RelativePath=".\watch_due_main_view.h"
+				RelativePath=".\view_pet_items.h"
+				>
+			</File>
+			<File
+				RelativePath=".\view_watch_due_main.h"
+				>
+			</File>
+			<File
+				RelativePath=".\views.h"
 				>
 			</File>
 			<File

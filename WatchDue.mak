@@ -47,13 +47,17 @@ HEADER_FILES= \
 
 	./nuklear_mre.h \
 
-	./pet_item_screen.h \
+	./pet_definitions.h \
 
 	./share.h \
 
-	./view_declarations.h \
+	./view_pet_info.h \
 
-	./watch_due_main_view.h \
+	./view_pet_items.h \
+
+	./view_watch_due_main.h \
+
+	./views.h \
 
 	WatchDue.h
 

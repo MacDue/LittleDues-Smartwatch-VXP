@@ -29,7 +29,7 @@
 #ifndef NK_MRE_H_
 	#define NK_MRE_H_ 
 
-	struct mre_view_p mre_view;
+	struct mre_view_p* mre_view;
 
 	void initiate_nk_gui(void);
 	void update_gui();
@@ -945,6 +945,7 @@
 	NK_API struct nk_context*
 	nk_mre_init(struct nk_user_font *mrefont, unsigned int width, unsigned int height){
 	
+		mre_view = NULL;
 		//Maybe keep some of this outside ? : Not sure. Needs to be thought after its working ok
 		
 		/* Define window/layer */
@@ -1001,7 +1002,7 @@
 
 		/*PAINTING AND PREPARING THE LAYER HANDLER*/ 
 
-	
+		nk_init_mre(&mre.ctx, font);	
 		vm_log_debug ("Initialised ALL OK.");
 
 		/*Init Memory Allocations for context*/
@@ -1109,7 +1110,7 @@
 				//Starts the main menu guts of the application..
 				//mre_start_menu ();
 				//initiate_nuklear_gui();
-				nk_init_mre(&mre.ctx, font);
+			
 
 			
 				//mre_view.components_count = 0;
@@ -1317,9 +1318,11 @@
 #endif
 
 
-void nk_mre_set_view(struct nk_context* ctx, nk_view_func view) {
+void nk_mre_set_view(struct nk_context* ctx, struct mre_view_p* view) {
 	nk_input_begin(ctx);
-	mre_view.current = view;
+	if (mre_view && mre_view->cleanup)	mre_view->cleanup(&mre);
+	if (view->setup)					view->setup(&mre);
+	mre_view = view;
 }
 
 void update_gui(){
@@ -1336,7 +1339,7 @@ void update_gui(){
 
 	SPAM(("\nUpdating the current View..\n"));
 
-	mre_view.current(&mre);
+	mre_view->view(&mre);
 	/*	Draw/Paint - Main render process
 		Also set the color to Gray(30,30,30)
 	*/

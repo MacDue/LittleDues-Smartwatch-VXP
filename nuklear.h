@@ -332,6 +332,9 @@ extern "C" {
 #define NK_LINE_STR(x) NK_STRINGIFY(x)
 #define NK_FILE_LINE __FILE__ ":" NK_LINE_STR(__LINE__)
 
+#define NK_TAPPED 1
+#define NK_DOUBLE_TAPPED 3
+
 struct nk_buffer;
 struct nk_allocator;
 struct nk_command_buffer;
