@@ -23,7 +23,7 @@
     <screenrotate>unchecked</screenrotate>
     <autoadaptable>unchecked</autoadaptable>
     <mem>500</mem>
-    <usesysmemory>unchecked</usesysmemory>
+    <usesysmemory>checked</usesysmemory>
     <sysdisk>
     </sysdisk>
     <Push>unchecked</Push>

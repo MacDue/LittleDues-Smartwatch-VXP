@@ -41,7 +41,11 @@ SOURCE_FILES= \
 
 HEADER_FILES= \
 
+	./macro_utils.h \
+
 	./mre_components.h \
+
+	./nk_particles.h \
 
 	./nuklear.h \
 

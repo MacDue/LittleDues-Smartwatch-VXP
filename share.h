@@ -41,6 +41,7 @@ share.h Shared global variables
 #define MRE_BOTH_LAYERS            2
 #define MRE_NOT_LAYER_CREATED     -1
 #define MRE_TCP_CONNECTION_PORT    80
+#define SMALL_STR_SIZE			   20
 //#define MRE_STRING_MAX_SIZE        100
 #define MRE_STRING_INTIAL_VALUE    0
 #define MRE_TCP_BUFFER_MAX_SIZE    500

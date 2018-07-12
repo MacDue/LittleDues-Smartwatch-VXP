@@ -236,7 +236,15 @@
 			Filter="h;hpp;hxx;hm;inl"
 			>
 			<File
+				RelativePath=".\macro_utils.h"
+				>
+			</File>
+			<File
 				RelativePath=".\mre_components.h"
+				>
+			</File>
+			<File
+				RelativePath=".\nk_particles.h"
 				>
 			</File>
 			<File

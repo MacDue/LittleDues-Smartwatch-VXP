@@ -9,12 +9,6 @@
 #include "vmlog.h"
 #include "vmres.h"
 
-#if 0
-  #define SPAM(a) printf a
-#else
-  #define SPAM(a) (void)0
-#endif
-
 //#define MRE_STR_SIZE_MAX 50
 
 /* ==============================================================
@@ -66,6 +60,8 @@
 	NK_API int nk_init_mre(struct nk_context *ctx, const struct nk_user_font *font);
 	NK_INTERN void* mre_malloc(nk_handle unused, void *old, nk_size size); //nk_handle: A pointer, an int id; nk_size: unsigned long
 	NK_INTERN void mre_free(nk_handle unused, void* old); //nk_handle: A pointer, an int id
+
+
 	
 
 #endif
@@ -807,14 +803,15 @@
 
 		struct frame_prop * frame_ptr = NULL;
 		SPAM(("\nimage path '%s'\n",img.path));
-		res_data = vm_load_resource(img.path, &res_size); 
+
+		res_data = vm_load_resource((char*)img.path, &res_size); 
 		
 		if (res_data == NULL) {
 			SPAM(("Failed to load image data\n"));
 			nk_mre_draw_text(x,y+h/2,w,h,"Missing image",strlen("Missing image"), nk_black, nk_red);
 			return;
 		}
-		SPAM(("LOADED THE FUCKING RESOURCE\n"));
+		SPAM(("Loaded resource\n"));
 		SPAM(("Scale %d\n", scale));
 		hcanvas = vm_graphic_load_gif_resized_by_percent(res_data, res_size, scale);
 		SPAM(("Res s %d - w %d - h %d\n", res_size, w, h));
@@ -833,7 +830,7 @@
 #ifdef DEBUG
 			char error[20];
 			sprintf(error, "%d\n", hcanvas);
-			nk_mre_draw_text(x,y+h/2,w,h,error,strlen(error), nk_black, nk_red);
+			nk_mre_draw_text(x,y,0,0,error,strlen(error), nk_black, nk_red);
 #endif	
 		}
 
@@ -1063,6 +1060,7 @@
 		//crumb being values we can judge what event happened..
 		VMUINT8 *layer_buf;
 		//Do stuff with the events. System Event
+		game_sys_event_handler(message, param);
 		switch (message) 
 		{
 			case VM_MSG_CREATE:
@@ -1101,9 +1099,9 @@
 				vm_graphic_flush_layer (layer_hdl, 1);
 				//layer_hdl[0] = vm_graphic_create_layer (0, 0, vm_graphic_get_screen_width (), 
 				//								vm_graphic_get_screen_height (), -1);
-			//	vm_graphic_active_layer (layer_hdl[0]);
+				//	vm_graphic_active_layer (layer_hdl[0]);
 				/* set clip area */
-			//	vm_graphic_set_clip (0, 0, 
+				//	vm_graphic_set_clip (0, 0, 
 				//	vm_graphic_get_screen_width (), 
 				//	vm_graphic_get_screen_height ());
 	           
@@ -1122,6 +1120,7 @@
 
 			case VM_MSG_HIDE:
 			case VM_MSG_INACTIVE:
+				//printf("TEST INACTIVE");
 				vm_log_debug ("VM_MSG_HIDE message, support bg");
 				vm_graphic_delete_layer (layer_hdl[0]);
 				break;
@@ -1319,6 +1318,7 @@
 
 
 void nk_mre_set_view(struct nk_context* ctx, struct mre_view_p* view) {
+	nk_clear(ctx);
 	nk_input_begin(ctx);
 	if (mre_view && mre_view->cleanup)	mre_view->cleanup(&mre);
 	if (view->setup)					view->setup(&mre);

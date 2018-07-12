@@ -354,7 +354,7 @@ struct nk_rect {float x,y,w,h;};
 struct nk_recti {short x,y,w,h;};
 typedef char nk_glyph[NK_UTF_SIZE];
 typedef union {void *ptr; int id;} nk_handle;
-struct nk_image {nk_handle handle;unsigned short w,h, xo, yo,scale;unsigned short region[4]; char *path;};
+struct nk_image {nk_handle handle;unsigned short w,h,scale; short xo,yo;unsigned short region[4]; const char *path;};
 struct nk_cursor {struct nk_image img; struct nk_vec2 size, offset;};
 struct nk_scroll {unsigned short x, y;};
 enum nk_heading {NK_UP, NK_RIGHT, NK_DOWN, NK_LEFT};
@@ -924,7 +924,7 @@ NK_API nk_handle                nk_handle_ptr(void*);
 NK_API nk_handle                nk_handle_id(int);
 NK_API struct nk_image          nk_image_ptr(void*);
 NK_API struct nk_image          nk_image_id(int);
-NK_API struct nk_image			nk_image_path(char *path); //Added Custom for MRE ^VS
+NK_API struct nk_image			nk_image_path(const char *path); //Added Custom for MRE ^VS
 NK_API int                      nk_image_is_subimage(const struct nk_image* img);
 NK_API struct nk_image          nk_subimage_ptr(void*, unsigned short w, unsigned short h, struct nk_rect sub_region);
 NK_API struct nk_image          nk_subimage_id(int, unsigned short w, unsigned short h, struct nk_rect sub_region);
@@ -4069,7 +4069,7 @@ nk_image_id(int id)
 
 /* Custom MRE: Create one with path in it somewhere ^VS */ 
 NK_API struct nk_image
-nk_image_path(char *path){
+nk_image_path(const char *path){
 	struct nk_image s;
     nk_zero(&s, sizeof(s));
     //s.handle.id = id; //We are not using the id for now in MRE ^VS
