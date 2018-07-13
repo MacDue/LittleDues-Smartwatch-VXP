@@ -164,7 +164,7 @@ static const struct pet_item PET_ITEMS[ITEM_ENTRIES]
 		},
 		{
 			/* sprite */		"food_amber.gif",
-			/* drop chance */	10,
+			/* drop chance */	40,
 			/* nutrition*/		5
 		}
 	};

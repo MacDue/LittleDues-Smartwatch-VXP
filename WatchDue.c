@@ -89,7 +89,7 @@ save_pet_data(void) {
 	vm_file_close(file_hdl);
 }
 
-#define FIVE_MINS 300
+#define TWENTY_MINS (60 * 20)
 
 static void apply_time_to_game(VMUINT save_time) {
 	VMUINT current_time;
@@ -105,8 +105,8 @@ static void apply_time_to_game(VMUINT save_time) {
 	
 	time_attrition = (time_diff/2 + rand() % time_diff)/60;
 	
-	mood_loss = (VMINT)(time_attrition * (float)current_pet_state.mood_trait/600);
-	hunger_increase = (VMINT)(time_attrition * (float)current_pet_state.hunger_trait/600);
+	mood_loss = (VMINT)(time_attrition * (float)current_pet_state.mood_trait/1000);
+	hunger_increase = (VMINT)(time_attrition * (float)current_pet_state.hunger_trait/1000);
 
 	if (mood_loss < current_pet_state.mood) 
 		current_pet_state.mood -= mood_loss;
@@ -130,7 +130,7 @@ static void apply_time_to_game(VMUINT save_time) {
 
 	// Item drops
 	// Chance every 5 mins
-	drop_chances = time_diff/FIVE_MINS;
+	drop_chances = time_diff/TWENTY_MINS;
 	for (drop = 0; drop < drop_chances; drop++) {
 		VMINT8 slot;
 		VMINT dropped_item = 0;
@@ -218,7 +218,7 @@ feed_pet(void) {
 
 static void 
 play_with_pet(void) {
-	current_pet_state.mood += rand() % (current_pet_state.mood_trait/10);
+	current_pet_state.mood += (rand() % (current_pet_state.mood_trait/10)) +1;
 	if (current_pet_state.mood > PET_STAT_MAX) 
 		current_pet_state.mood = PET_STAT_MAX;
 }

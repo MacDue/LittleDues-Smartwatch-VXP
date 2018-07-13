@@ -8,8 +8,8 @@ REM Copmile c file
 REM Link app 
 "C:\Program Files\ARM\ADSv1_2\Bin\armlink" -o "C:\Users\samsu\Documents\WatchDue\WatchDue.axf"  "C:\Users\samsu\Documents\WatchDue\arm\vmmain.o"  "C:\Users\samsu\Documents\WatchDue\arm\WatchDue.o" -info totals -rwpi -ropi "C:\Program Files\MRE SDK V3.0.00\lib\MRE30\armads\percommon.a" "C:\Program Files\MRE SDK V3.0.00\lib\MRE30\armads\pertcp.a" "C:\Program Files\MRE SDK V3.0.00\lib\MRE30\armads\persensor.a" "C:\Program Files\MRE SDK V3.0.00\lib\MRE30\armads\persmsper.a" "C:\Program Files\MRE SDK V3.0.00\lib\MRE30\armads\perbitstream.a" "C:\Program Files\MRE SDK V3.0.00\lib\MRE30\armads\percontact.a" "C:\Program Files\MRE SDK V3.0.00\lib\MRE30\armads\permms.a" "C:\Program Files\MRE SDK V3.0.00\lib\MRE30\armads\persmsmng.a" -errors "C:\Users\samsu\Documents\WatchDue\WatchDue.log"
 REM Pack resource to app 
-"C:\Program Files\MRE SDK V3.0.00\tools\ResEditor\CmdShell.exe" pack -silent -resolution 176x220 -o "C:\Users\samsu\Documents\WatchDue\WatchDue.pkd" -e AXF "C:\Users\samsu\Documents\WatchDue\WatchDue.vcproj" "C:\Users\samsu\Documents\WatchDue\WatchDue.axf"
+"C:\Program Files\MRE SDK V3.0.00\tools\ResEditor\CmdShell.exe" pack -silent -resolution 176x220 -o "C:\Users\samsu\Documents\WatchDue\WatchDue.pkd" -e AXF -vom "C:\Users\samsu\Documents\WatchDue\WatchDue.vcproj" "C:\Users\samsu\Documents\WatchDue\WatchDue.axf"
 REM Add tag infromation 
 "C:\Program Files\MRE SDK V3.0.00\tools\PackDigist.exe" "C:\Users\samsu\Documents\WatchDue\WatchDue.vcproj" "Little Dues" "0.1.0" "MacDue" "500" "NotSupportBg" "Not Support rotate" "Little Dues" "Little Dues" "Little Dues" "1234567890" "content" " TCP Sensor SMS(person) BitStream Contact MMS SMSMng" "vxp" "ADS" "PKD" "UnCompress" "NoVPI" "UnAdaptable" "11534556" "SysMemAble" "
-    " "-1" "UNPUSH" "-1" ""  "UnAutoStart"  "UnTransferImg" "NoIdleShortcut"  C:\Users\samsu\Documents\WatchDue\arm C:\Users\samsu\Documents\WatchDue\build.log
+    " "-1" "UNPUSH" "-1" ""  "UnAutoStart"  "TransferImg" "NoIdleShortcut"  C:\Users\samsu\Documents\WatchDue\arm C:\Users\samsu\Documents\WatchDue\build.log
 
