@@ -5,6 +5,7 @@
 #define PERCENT_TO_MULT_SCALE(percent)	(((float)(percent)/100))
 #define NK_TXT(txt) txt, strlen(txt)
 #define NK_TXT_PAD(txt) txt" "
+#define RAND(max) (rand() % max)
 
 #define DEG_TO_RAD 0.0174533
 

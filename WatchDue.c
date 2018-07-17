@@ -20,6 +20,7 @@
 #include "ResID.h"
 #include "vm4res.h"
 #include "vmtimer.h"
+#include "macro_utils.h"
 
 //#define		DEBUG
 #define		SUPPORT_BG
@@ -55,6 +56,7 @@ current_pet_state {
 	bool dead;
 	const struct watch_due_pet* def;
 	const struct pet_sprite * sprite;
+	VMUINT8 glitch;
 	VMINT fed_item;
 } current_pet_state;
 
@@ -86,6 +88,7 @@ save_pet_data(void) {
 	vm_file_write(file_hdl, &save_time,						 sizeof(VMUINT),				&written);
 	vm_file_write(file_hdl, current_pet_state.items,	PET_ITEMS_MAX * sizeof(VMINT),		&written);
 	vm_file_write(file_hdl, &current_pet_state.dead,			 sizeof(bool),				&written);
+	vm_file_write(file_hdl, &current_pet_state.glitch,		sizeof(VMUINT8),				&written);
 	vm_file_close(file_hdl);
 }
 
@@ -101,10 +104,11 @@ static void apply_time_to_game(VMUINT save_time) {
 
 	// Pet aging
 	time_diff = current_time - save_time;
-	current_pet_state.age += (float)time_diff/60/60;
+	current_pet_state.age += (float)time_diff/60/60; // pet age is in hours
 	
 	time_attrition = (time_diff/2 + rand() % time_diff)/60;
 	
+	// Gives about 10 hours until the pet will die
 	mood_loss = (VMINT)(time_attrition * (float)current_pet_state.mood_trait/1000);
 	hunger_increase = (VMINT)(time_attrition * (float)current_pet_state.hunger_trait/1000);
 
@@ -170,9 +174,12 @@ static void load_or_create_pet(void) {
 		current_pet_state.age			= 0;
 		current_pet_state.mood			= PET_STAT_MAX;
 		current_pet_state.hunger		= PET_STAT_MAX;
-		current_pet_state.mood_trait	= rand() % 101 + 1;
-		current_pet_state.hunger_trait	= rand() % 101 + 1;
+		current_pet_state.mood_trait	= RAND(100) + 1;
+		current_pet_state.hunger_trait	= RAND(100) + 1;
 		current_pet_state.dead			= false;
+		if (RAND(100) < 5) {
+			current_pet_state.glitch = RAND(255) + 1;
+		}
 		memset(current_pet_state.items, 0, PET_ITEMS_MAX * sizeof(VMINT));
 		current_pet_state.sprite = &current_pet_state.def->sprite;
 		return;
@@ -187,6 +194,7 @@ static void load_or_create_pet(void) {
 	vm_file_read(file_hdl, &save_time,						sizeof(VMUINT),				&read);
 	vm_file_read(file_hdl, current_pet_state.items,	PET_ITEMS_MAX * sizeof(VMINT),		&read);
 	vm_file_read(file_hdl, &current_pet_state.dead,			sizeof(bool),				&read);
+	vm_file_read(file_hdl, &current_pet_state.glitch,		sizeof(VMUINT8),			&read);
 	vm_file_close(file_hdl);
 	current_pet_state.def = &PET_DB[pet_id];
 	current_pet_state.sprite = &current_pet_state.def->sprite;
@@ -221,6 +229,11 @@ play_with_pet(void) {
 	current_pet_state.mood += (rand() % (current_pet_state.mood_trait/10)) +1;
 	if (current_pet_state.mood > PET_STAT_MAX) 
 		current_pet_state.mood = PET_STAT_MAX;
+}
+
+static void
+glitch_pet_sprite(VMUINT8* res_data) {
+	glitch_pet_resource(res_data, current_pet_state.glitch);
 }
 
 //////////// TIMERS

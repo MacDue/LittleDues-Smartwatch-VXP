@@ -51,6 +51,9 @@ view_func_pet_info(struct mre* mre) {
 			image.scale = pet_def->view_info_adjustments.pet_sprite.scale;
 			image.xo = pet_def->view_info_adjustments.pet_sprite.x_offset;
 			image.yo = pet_def->view_info_adjustments.pet_sprite.y_offset;
+			if (current_pet_state.glitch) {
+				image.pre_draw = glitch_pet_sprite;
+			}
 			nk_image(ctx,image);
 
 			nk_layout_row_end(ctx);

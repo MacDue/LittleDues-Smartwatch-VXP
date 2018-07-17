@@ -38,6 +38,7 @@ view_func_pet_items(struct mre* mre) {
 			image.yo = (mre->height/4 +30 - ctx->style.button.padding.y*2 - FOOD_SPRITE_DRAW_WH)/2;
 
 			if (nk_button_image(ctx, image) == NK_TAPPED) {
+				// Can only feed when hungry & not already being fed
 				if (current_pet_state.hunger < PET_STAT_MAX 
 						&& current_pet_state.fed_item == 0 && item_id != 0) {
 					current_pet_state.fed_item = item_id;

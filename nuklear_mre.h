@@ -806,11 +806,15 @@
 
 		res_data = vm_load_resource((char*)img.path, &res_size); 
 		
+//		glitch_pet_resource(res_data);
 		if (res_data == NULL) {
 			SPAM(("Failed to load image data\n"));
 			nk_mre_draw_text(x,y+h/2,w,h,"Missing image",strlen("Missing image"), nk_black, nk_red);
 			return;
 		}
+
+		if (img.pre_draw) img.pre_draw(res_data);
+
 		SPAM(("Loaded resource\n"));
 		SPAM(("Scale %d\n", scale));
 		hcanvas = vm_graphic_load_gif_resized_by_percent(res_data, res_size, scale);

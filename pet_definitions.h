@@ -122,7 +122,7 @@ static const struct watch_due_pet PET_DB[PET_ENTRIES]
 				}
 			},
 			{
-				1, 1, 1, 1
+				1, 2, 3, 2
 			},
 			{ /* main view adjustments */
 				{ /* floating status */
@@ -154,20 +154,57 @@ struct pet_item {
 	VMINT nutrition;
 };
 
-#define ITEM_ENTRIES 2
+#define ITEM_ENTRIES 4
 
 static const struct pet_item PET_ITEMS[ITEM_ENTRIES] 
 	=
 	{
-		{
+		{ /* id 0 */
 			"no_item.gif", 0, 0
 		},
-		{
+		{ /* id 1 */
 			/* sprite */		"food_amber.gif",
-			/* drop chance */	40,
+			/* drop chance */	20,
 			/* nutrition*/		5
+		},
+		{ /* id 2 */
+			/* sprite */		"food_coal.gif",
+			/* drop chance */	5,
+			/* nutrition */		12
+		},
+		{ /* id 3 */
+			/* sprite */		"food_dead_bush.gif",
+			/* drop chance */	10,
+			/* nutrition */		3
 		}
 	};
+
+
+
+#define GIF_GCT_FLAG(p_byte) (p_byte & (1 << 7))
+#define GIF_COLOUR_RES(p_byte) (p_byte & (7 << 5))
+#define GIF_GCT_SIZE(p_byte) (p_byte & 7)
+
+
+void glitch_pet_resource(VMUINT8* gif_res, VMUINT8 glitch_val) {
+	VMUINT8 packing_byte;
+	VMINT colour_table_len;
+	VMINT c;
+
+	if (strncmp("GIF89a", gif_res, 6) != 0) {
+		return;
+	}
+	packing_byte = *(gif_res+10);
+	if (!GIF_GCT_FLAG(packing_byte)) {
+		return;
+	}
+	c = GIF_GCT_SIZE(packing_byte) + 1;
+	colour_table_len = 1 << (GIF_GCT_SIZE(packing_byte) +1);
+	for (c = 0; c < colour_table_len; c++) {
+		*(gif_res+13+c) ^= glitch_val;
+	}
+}
+
 
 #undef PETS_SETUP
 #endif

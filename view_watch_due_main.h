@@ -175,9 +175,13 @@ view_func_watch_due_main(struct mre* mre) {
 			image.w = MAGIC_NUMBERS.pet_sprite_draw_w;
 			image.h = PET_AREA_WH; 
 			image.scale = pet_def->view_main_adjustments.pet_sprite.scale;
-	
 			image.xo = pet_def->view_main_adjustments.pet_sprite.x_offset;
 			image.yo = pet_def->view_main_adjustments.pet_sprite.y_offset;
+			
+			if (current_pet_state.glitch) {
+				image.pre_draw = glitch_pet_sprite;
+			}
+
 			// Double tap on pet to open pet info
 			nk_button_transparent(ctx);
 			pet_tap = nk_button_image(ctx, image);
