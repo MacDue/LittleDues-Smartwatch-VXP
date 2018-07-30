@@ -147,7 +147,7 @@ static const struct watch_due_pet PET_DB[PET_ENTRIES]
 						31,			0,				16,				16,				1
 			},
 			{ /* Foods */
-				4, 5, 6, 7
+				5, 6, 7, 8
 			},
 			{ /* main view adjustments */
 				{ /* floating status */
@@ -179,7 +179,7 @@ struct pet_item {
 	VMINT nutrition;
 };
 
-#define ITEM_ENTRIES 8
+#define ITEM_ENTRIES 9
 
 static const struct pet_item PET_ITEMS[ITEM_ENTRIES] 
 	=
@@ -209,26 +209,32 @@ static const struct pet_item PET_ITEMS[ITEM_ENTRIES]
 		{ /* id 4 */
 			/* Cooked meat */
 			/* sprite */		{32, 18, 8, 8, 1},
-			/* drop chance */	4,
-			/* nutrition */		15
+			/* drop chance */	5,
+			/* nutrition */		12
 		},
 		{ /* id 5 */
-			/* Raw meat */
+			/* Human 1 */
 			/* sprite */		{40, 18, 8, 8, 1},
-			/* drop chance */	16,
-			/* nutrition */		9
+			/* drop chance */	9,
+			/* nutrition */		6
 		},
 		{ /* id 6 */
-			/* Melon */
+			/* Human 2 */
 			/* sprite */		{48, 18, 8, 8, 1},
-			/* drop chance */	20,
-			/* nutrition */		2
+			/* drop chance */	10,
+			/* nutrition */		11
 		},
 		{ /* id 7 */
-			/* Mushroom */
+			/* Human 3 */
 			/* sprite */		{56, 18, 8, 8, 1},
-			/* drop chance */	20,
-			/* nutrition */		5
+			/* drop chance */	7,
+			/* nutrition */		8
+		},
+		{ /* id 8 */
+			/* Human 4 */
+			/* sprite */		{64, 18, 8, 8, 1},
+			/* drop chance */	10,
+			/* nutrition */		3
 		}
 	};
 
