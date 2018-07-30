@@ -103,7 +103,7 @@ static void apply_time_to_game(VMUINT save_time) {
 	(void) vm_get_curr_utc(&current_time); // assume the clock works
 
 	// Pet aging
-	time_diff = current_time - save_time + 10000;
+	time_diff = current_time - save_time;
 	current_pet_state.age += (float)time_diff/60/60; // pet age is in hours
 	
 	time_attrition = (time_diff/2 + rand() % time_diff)/60;
