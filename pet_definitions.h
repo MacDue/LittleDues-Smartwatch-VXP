@@ -3,6 +3,7 @@
 
 #include "share.h"
 #include "macro_utils.h"
+#include "sprites.h"
 
 #define MAX_SPRITE_FRAMES 10
 
@@ -78,8 +79,8 @@ struct watch_due_pet {
 
 	char species[MRE_STRING_MAX_SIZE];
 
-	struct pet_sprite sprite;
-	struct pet_sprite dead_sprite;
+	struct sprite sprite;
+	struct sprite dead_sprite;
 	VMINT acceptable_foods[PET_ITEMS_MAX];
 
 	struct {
@@ -104,22 +105,11 @@ static const struct watch_due_pet PET_DB[PET_ENTRIES]
 		{	
 			/* id */ 0,
 			/* species */ "FLAME",
-			{ /* live sprite info* /
-				/* width */			80, /* height */	70, 
-				/* frame count */	6,	/* frame rate*/ 200, 
-
-				/* frame resources */
-				{	
-					"flame_0.gif", "flame_1.gif", "flame_2.gif",
-					"flame_3.gif", "flame_4.gif", "flame_5.gif" 
-				}
+			{
+				0,26,11,14,6
 			},
 			{
-				/* width */			80, /* height */	70, 
-				/* frame count */	1,	/* frame rate*/ 0, 
-				{
-					"flame_dead.gif"
-				}
+				0,26,11,14,6
 			},
 			{
 				1, 2, 3, 2
@@ -131,7 +121,7 @@ static const struct watch_due_pet PET_DB[PET_ENTRIES]
 				},
 				{ /* pet sprite */
 					/* x offset */	-8, /* y offset */	35,
-					/* scale */		150
+					/* scale */		10
 				},
 				{ /* floor disc */
 					/* x offset */	0, /* y offset */	95,

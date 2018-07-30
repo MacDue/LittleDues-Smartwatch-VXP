@@ -264,6 +264,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\sprites.h"
+				>
+			</File>
+			<File
 				RelativePath=".\view_pet_info.h"
 				>
 			</File>

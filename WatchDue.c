@@ -22,7 +22,7 @@
 #include "vmtimer.h"
 #include "macro_utils.h"
 
-//#define		DEBUG
+#define		DEBUG
 #define		SUPPORT_BG
 
 #if 0
@@ -55,7 +55,7 @@ current_pet_state {
 	VMINT items[PET_ITEMS_MAX];
 	bool dead;
 	const struct watch_due_pet* def;
-	const struct pet_sprite * sprite;
+	const struct sprite * sprite;
 	VMUINT8 glitch;
 	VMINT fed_item;
 } current_pet_state;
@@ -370,7 +370,7 @@ void vm_main(void) {
 	load_or_create_pet();
 
 	//create_timer(game_timer(update_pet_frame, 200), FG_TIMER, 0);
-	vm_create_timer(200, update_pet_frame);
+	vm_create_timer(1000, update_pet_frame);
 
 	watch_font.height = (float) vm_graphic_get_character_height();
 	watch_font.width = calc_watch_font_width;

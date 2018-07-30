@@ -79,12 +79,10 @@ setup_watch_due_main(struct mre* mre) {
 	ctx->style.button.image_padding.y = 0;
 
 	MAGIC_NUMBERS.pet_sprite_draw_w 
-		= (VMUINT8)(pet_def->sprite.width 
-			* PERCENT_TO_MULT_SCALE(pet_def->view_main_adjustments.pet_sprite.scale));
+		= pet_def->sprite.w * pet_def->view_main_adjustments.pet_sprite.scale;
 
 	MAGIC_NUMBERS.pet_sprite_draw_h
-		= (VMUINT8)(pet_def->sprite.width 
-			* PERCENT_TO_MULT_SCALE(pet_def->view_main_adjustments.pet_sprite.scale));
+		= pet_def->sprite.h * pet_def->view_main_adjustments.pet_sprite.scale;
 
 	MAGIC_NUMBERS.floating_status_draw_wh
 		= (VMUINT8)(SPRITE_FLOATING_STATUS_WH
@@ -171,10 +169,9 @@ view_func_watch_due_main(struct mre* mre) {
 			nk_progress(ctx, &bar_cur, 100, 0);
 
 			nk_layout_row_push(ctx, MAGIC_NUMBERS.pet_sprite_draw_w);
-			image = nk_image_path(current_pet_state.sprite->frames[pet_sprite_index]);
+			image = nk_sprite(*current_pet_state.sprite, pet_def->view_main_adjustments.pet_sprite.scale, pet_sprite_index);
 			image.w = MAGIC_NUMBERS.pet_sprite_draw_w;
 			image.h = PET_AREA_WH; 
-			image.scale = pet_def->view_main_adjustments.pet_sprite.scale;
 			image.xo = pet_def->view_main_adjustments.pet_sprite.x_offset;
 			image.yo = pet_def->view_main_adjustments.pet_sprite.y_offset;
 			

@@ -812,33 +812,58 @@
 			nk_mre_draw_text(x,y+h/2,w,h,"Missing image",strlen("Missing image"), nk_black, nk_red);
 			return;
 		}
-
+ 
 		if (img.pre_draw) img.pre_draw(res_data);
 
 		SPAM(("Loaded resource\n"));
-		SPAM(("Scale %d\n", scale));
-		hcanvas = vm_graphic_load_gif_resized_by_percent(res_data, res_size, scale);
-		SPAM(("Res s %d - w %d - h %d\n", res_size, w, h));
-		vm_free(res_data);
 
-		buffer = vm_graphic_get_layer_buffer(layer_hdl[0]);
-		SPAM(("Code %d\n",hcanvas));
-		if (hcanvas >= VM_GDI_SUCCEED){
-			frame_ptr = vm_graphic_get_img_property(hcanvas, 1);
-			vm_graphic_blt(buffer, x, y,
-				vm_graphic_get_canvas_buffer(hcanvas), 0, 0,
-					frame_ptr->width, frame_ptr->height, 1);
-			SPAM(("DREW IMAGE?\n"));
-			vm_graphic_release_canvas(hcanvas);
+		if (img.sprite.frame_count == 255) {
+			SPAM(("Scale %d\n", scale));
+			hcanvas = vm_graphic_load_image_resized(res_data, res_size, img.w, img.h);
+			SPAM(("Res s %d - w %d - h %d\n", res_size, w, h));
+			vm_free(res_data);
+
+			buffer = vm_graphic_get_layer_buffer(layer_hdl[0]);
+			SPAM(("Code %d\n",hcanvas));
+			if (hcanvas >= VM_GDI_SUCCEED){
+				frame_ptr = vm_graphic_get_img_property(hcanvas, 1);
+				vm_graphic_blt(buffer, x, y,
+					vm_graphic_get_canvas_buffer(hcanvas), 0, 0,
+						frame_ptr->width, frame_ptr->height, 1);
+				SPAM(("DREW IMAGE?\n"));
+				vm_graphic_release_canvas(hcanvas);
+			} else {
+	#ifdef DEBUG
+				char error[20];
+				sprintf(error, "%d\n", hcanvas);
+				nk_mre_draw_text(x,y,0,0,error,strlen(error), nk_black, nk_red);
+	#endif	
+			}
 		} else {
-#ifdef DEBUG
-			char error[20];
-			sprintf(error, "%d\n", hcanvas);
-			nk_mre_draw_text(x,y,0,0,error,strlen(error), nk_black, nk_red);
-#endif	
+			hcanvas = vm_graphic_load_image_resized(res_data, res_size, SPRITE_SHEET_W * img.scale,SPRITE_SHEET_H * img.scale);
+			vm_free(res_data);
+
+			buffer = vm_graphic_get_layer_buffer(layer_hdl[0]);
+			SPAM(("Code %d\n",hcanvas));
+			if (hcanvas >= VM_GDI_SUCCEED){
+				VMINT sprite_x = img.sprite.x*img.scale+img.sprite.w*img.scale*img.frame;
+				VMINT sprite_y = img.sprite.y*img.scale;
+				VMINT sprite_w = img.sprite.w*img.scale;
+				VMINT sprite_h = img.sprite.h*img.scale;
+				frame_ptr = vm_graphic_get_img_property(hcanvas, 1);
+		
+				vm_graphic_blt(buffer, x, y,
+					vm_graphic_get_canvas_buffer(hcanvas), sprite_x, sprite_y, sprite_w, sprite_h, 1);
+				SPAM(("DREW IMAGE?\n"));
+				vm_graphic_release_canvas(hcanvas);
+			} else {
+	#ifdef DEBUG
+				char error[20];
+				sprintf(error, "%d\n", hcanvas);
+				nk_mre_draw_text(x,y,0,0,error,strlen(error), nk_black, nk_red);
+	#endif	
+			}
 		}
-
-
 	}
 
 
