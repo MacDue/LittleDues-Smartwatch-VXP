@@ -170,7 +170,7 @@ static void load_or_create_pet(void) {
 	if (file_hdl < 0) {
 		// No pet data found.
 		// Create new pet state
-		current_pet_state.def			= &PET_DB[0];
+		current_pet_state.def			= &PET_DB[rand() % PET_ENTRIES];
 		current_pet_state.age			= 0;
 		current_pet_state.mood			= PET_STAT_MAX;
 		current_pet_state.hunger		= PET_STAT_MAX;
@@ -226,7 +226,7 @@ feed_pet(void) {
 
 static void 
 play_with_pet(void) {
-	current_pet_state.mood += (rand() % (current_pet_state.mood_trait/10)) +1;
+	current_pet_state.mood += (rand() % (current_pet_state.mood_trait/10)+1) +1;
 	if (current_pet_state.mood > PET_STAT_MAX) 
 		current_pet_state.mood = PET_STAT_MAX;
 }
@@ -352,9 +352,11 @@ game_sys_event_handler(VMINT message, VMINT param) {
 	}
 }
 
+
 void vm_main(void) {
 	VMUINT time;
-	
+	int i;
+
 	vm_gb2312_to_ucs2(wide_save_file_name, MRE_FILE_NAME_SIZE, (VMSTR)SAVE_FILE_NAME);
 
 	if(!vm_get_curr_utc(&time)) {
@@ -370,7 +372,7 @@ void vm_main(void) {
 	load_or_create_pet();
 
 	//create_timer(game_timer(update_pet_frame, 200), FG_TIMER, 0);
-	vm_create_timer(1000, update_pet_frame);
+	vm_create_timer(200, update_pet_frame);
 
 	watch_font.height = (float) vm_graphic_get_character_height();
 	watch_font.width = calc_watch_font_width;

@@ -356,7 +356,7 @@ typedef char nk_glyph[NK_UTF_SIZE];
 typedef union {void *ptr; int id;} nk_handle;
 typedef void (*nk_image_pre_draw)(VMUINT8* img_data);
 #include "sprites.h"
-struct nk_image {nk_handle handle;unsigned short w,h, real_w, real_h, frame; struct sprite sprite; short xo,yo, scale;unsigned short region[4]; const char *path; nk_image_pre_draw pre_draw;};
+struct nk_image {nk_handle handle;unsigned short w,h, frame; const struct sprite* sprite; short xo,yo, scale;unsigned short region[4]; const char *path; nk_image_pre_draw pre_draw;};
 struct nk_cursor {struct nk_image img; struct nk_vec2 size, offset;};
 struct nk_scroll {unsigned short x, y;};
 enum nk_heading {NK_UP, NK_RIGHT, NK_DOWN, NK_LEFT};
@@ -4083,7 +4083,6 @@ nk_image_path(const char *path){
     s.region[1] = 0;
     s.region[2] = 0;
     s.region[3] = 0;
-	s.sprite.frame_count = 255;
 
 	// Set the path of the image file here 
 	s.path = path;
@@ -4092,13 +4091,15 @@ nk_image_path(const char *path){
 }
 
 NK_API struct nk_image
-nk_sprite(const struct sprite sprite, short scale, short frame) {
+nk_sprite(const struct sprite* sprite, short scale, short frame) {
 	struct nk_image img;
 	nk_zero(&img, sizeof(img));
 	img.sprite = sprite;
 	img.scale = scale;
+	img.w = sprite->w * scale;
+	img.h = sprite->h * scale;
 	img.frame = frame;
-	img.path = "sprites.png";
+	img.path = "sprites.bmp";
 	return img;
 }
 

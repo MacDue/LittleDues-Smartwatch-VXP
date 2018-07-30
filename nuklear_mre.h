@@ -788,6 +788,23 @@
 
 	}
 
+	#define CHROMA_KEY 47092
+	static void draw_sprite_scaled(VMUINT8* sprite_buffer, const struct sprite* sprite, VMINT frame, VMINT scale, VMUINT8* dest, VMINT x, VMINT y) {
+		VMINT s_x, s_y; // sprite pixel x, y
+		for (s_y = sprite->y; s_y < sprite->y + sprite->h; s_y++) {
+			VMINT t_x = x;
+			for (s_x = sprite->x + sprite->w * frame; s_x < sprite->x + sprite->w * frame + sprite->w; s_x++) {
+				// Redraw each pixel as a filled rect with scale width & height.
+				VMUINT16 pixel = vm_graphic_get_pixel(sprite_buffer, s_x, s_y);
+				if (pixel != CHROMA_KEY) {
+					vm_graphic_fill_rect(dest, t_x, y, scale, scale, pixel, pixel);
+				}
+				t_x+=scale;
+			}
+			y+=scale;
+		}
+	}
+
 	/*
 		Draw Image
 		Draws image set in image object
@@ -796,17 +813,16 @@
 	static void
 	nk_mre_draw_image(short x, short y, short w, short h, short scale, struct nk_image img)
 	{
+		// HACKED UP TO ASSUME ALL IMAGES ARE ON SPRITE SHEETS
 		VMUINT8 *res_data = NULL;
 		VMINT res_size = 0;
 		VMINT hcanvas = VM_GDI_SUCCEED;
 		VMUINT8 *buffer;
 
 		struct frame_prop * frame_ptr = NULL;
-		SPAM(("\nimage path '%s'\n",img.path));
 
 		res_data = vm_load_resource((char*)img.path, &res_size); 
 		
-//		glitch_pet_resource(res_data);
 		if (res_data == NULL) {
 			SPAM(("Failed to load image data\n"));
 			nk_mre_draw_text(x,y+h/2,w,h,"Missing image",strlen("Missing image"), nk_black, nk_red);
@@ -815,54 +831,19 @@
  
 		if (img.pre_draw) img.pre_draw(res_data);
 
-		SPAM(("Loaded resource\n"));
+		hcanvas = vm_graphic_load_image(res_data, res_size);
+		vm_free(res_data);
+		buffer = vm_graphic_get_layer_buffer(layer_hdl[0]);
 
-		if (img.sprite.frame_count == 255) {
-			SPAM(("Scale %d\n", scale));
-			hcanvas = vm_graphic_load_image_resized(res_data, res_size, img.w, img.h);
-			SPAM(("Res s %d - w %d - h %d\n", res_size, w, h));
-			vm_free(res_data);
-
-			buffer = vm_graphic_get_layer_buffer(layer_hdl[0]);
-			SPAM(("Code %d\n",hcanvas));
-			if (hcanvas >= VM_GDI_SUCCEED){
-				frame_ptr = vm_graphic_get_img_property(hcanvas, 1);
-				vm_graphic_blt(buffer, x, y,
-					vm_graphic_get_canvas_buffer(hcanvas), 0, 0,
-						frame_ptr->width, frame_ptr->height, 1);
-				SPAM(("DREW IMAGE?\n"));
-				vm_graphic_release_canvas(hcanvas);
-			} else {
-	#ifdef DEBUG
-				char error[20];
-				sprintf(error, "%d\n", hcanvas);
-				nk_mre_draw_text(x,y,0,0,error,strlen(error), nk_black, nk_red);
-	#endif	
-			}
+		if (hcanvas >= VM_GDI_SUCCEED){ 
+			draw_sprite_scaled(vm_graphic_get_canvas_buffer(hcanvas), img.sprite, img.frame, img.scale, buffer, x, y);
+			vm_graphic_release_canvas(hcanvas);
 		} else {
-			hcanvas = vm_graphic_load_image_resized(res_data, res_size, SPRITE_SHEET_W * img.scale,SPRITE_SHEET_H * img.scale);
-			vm_free(res_data);
-
-			buffer = vm_graphic_get_layer_buffer(layer_hdl[0]);
-			SPAM(("Code %d\n",hcanvas));
-			if (hcanvas >= VM_GDI_SUCCEED){
-				VMINT sprite_x = img.sprite.x*img.scale+img.sprite.w*img.scale*img.frame;
-				VMINT sprite_y = img.sprite.y*img.scale;
-				VMINT sprite_w = img.sprite.w*img.scale;
-				VMINT sprite_h = img.sprite.h*img.scale;
-				frame_ptr = vm_graphic_get_img_property(hcanvas, 1);
-		
-				vm_graphic_blt(buffer, x, y,
-					vm_graphic_get_canvas_buffer(hcanvas), sprite_x, sprite_y, sprite_w, sprite_h, 1);
-				SPAM(("DREW IMAGE?\n"));
-				vm_graphic_release_canvas(hcanvas);
-			} else {
-	#ifdef DEBUG
-				char error[20];
-				sprintf(error, "%d\n", hcanvas);
-				nk_mre_draw_text(x,y,0,0,error,strlen(error), nk_black, nk_red);
-	#endif	
-			}
+#ifdef DEBUG
+			char error[20];
+			sprintf(error, "%d\n", hcanvas);
+			nk_mre_draw_text(x,y,0,0,error,strlen(error), nk_black, nk_red);
+#endif	
 		}
 	}
 
@@ -1207,15 +1188,19 @@
 			get the target buffer from the layer
 		*/
 		//buffer = vm_graphic_get_layer_buffer(layer_hdl[0]);
+		vm_graphic_color start_color = {0x20C9, 0x241A49};
+		vm_graphic_color end_color = {0x48C5, 0x491A28};
 
-		/* fill the screen*/
+	/* fill the screen*/
 		//vm_graphic_fill_rect (buffer, MRE_SET_SRC_LEFT_TOP_X, MRE_SET_SRC_LEFT_TOP_Y, vm_graphic_get_screen_width (), 
 		//					 vm_graphic_get_screen_height (), VM_COLOR_WHITE, VM_COLOR_BLACK);
 
 		/*Test: Clearing*/
 		//nk_clear(&mre.ctx); //Clears everything here..
-
 		
+		// FOR ADDING SKY
+		//vm_graphic_gradient_paint_rect(layer_hdl[0], 0, 0,  vm_graphic_get_screen_width (),  vm_graphic_get_screen_height (), start_color, end_color, VM_GDI_GP_VER);
+
 		/*Actual Render bits*/
 		nk_foreach(cmd, &mre.ctx)
 		{
@@ -1244,9 +1229,12 @@
 			case NK_COMMAND_RECT_FILLED: {
 				const struct nk_command_rect_filled *r = (const struct nk_command_rect_filled *)cmd;
 				//nk_mre_fill_rect(memory_dc, r->x, r->y, r->w, r->h,
-				//	(unsigned short)r->rounding, r->color);
+				////	(unsigned short)r->rounding, r->color);
+				if (r->color.a > 0)
 				nk_mre_fill_rect(r->x, r->y, r->w, r->h,
 					(unsigned short)r->rounding, r->color);
+			//	else
+	
 			} break;
 			case NK_COMMAND_CIRCLE: {
 				const struct nk_command_circle *c = (const struct nk_command_circle *)cmd;

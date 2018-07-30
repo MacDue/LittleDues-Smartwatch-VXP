@@ -11,5 +11,4 @@ struct sprite {
 	VMUINT8 frame_count;
 };
 
-
 #endif

@@ -55,6 +55,8 @@ HEADER_FILES= \
 
 	./share.h \
 
+	./sprites.h \
+
 	./view_pet_info.h \
 
 	./view_pet_items.h \

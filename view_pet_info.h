@@ -23,8 +23,8 @@ setup_pet_info(struct mre* mre) {
 	const struct watch_due_pet* pet_def = current_pet_state.def;
 	
 	MAGIC_NUMBERS.pet_sprite_draw_w 
-		= (VMUINT8)(pet_def->sprite.w 
-			* PERCENT_TO_MULT_SCALE(pet_def->view_info_adjustments.pet_sprite.scale));
+		= pet_def->sprite.w 
+			* pet_def->view_info_adjustments.pet_sprite.scale;
 
 }
 
@@ -47,14 +47,14 @@ view_func_pet_info(struct mre* mre) {
 
 			// Little pet sprite
 			nk_layout_row_push(ctx, MAGIC_NUMBERS.pet_sprite_draw_w);
-			//image = nk_image_path(current_pet_state.sprite->frames[pet_sprite_index]);
-			//image.scale = pet_def->view_info_adjustments.pet_sprite.scale;
-			//image.xo = pet_def->view_info_adjustments.pet_sprite.x_offset;
-			//image.yo = pet_def->view_info_adjustments.pet_sprite.y_offset;
-			//if (current_pet_state.glitch) {
-			//	image.pre_draw = glitch_pet_sprite;
-		//	}
-			//nk_image(ctx,image);
+			image = nk_sprite(current_pet_state.sprite, 
+				pet_def->view_info_adjustments.pet_sprite.scale, pet_sprite_index);
+			image.xo = pet_def->view_info_adjustments.pet_sprite.x_offset;
+			image.yo = pet_def->view_info_adjustments.pet_sprite.y_offset;
+			if (current_pet_state.glitch) {
+				image.pre_draw = glitch_pet_sprite;
+			}
+			nk_image(ctx,image);
 
 			nk_layout_row_end(ctx);
 		}

@@ -43,6 +43,7 @@ struct position_and_scale_adjustments {
 	VMINT16 x_offset;
 	VMINT16 y_offset;
 	VMUINT16 scale;
+	VMINT16 padding;
 };
 
 
@@ -97,7 +98,7 @@ struct watch_due_pet {
 
 #ifdef PETS_SETUP
 
-#define PET_ENTRIES 1
+#define PET_ENTRIES 2
 
 static const struct watch_due_pet PET_DB[PET_ENTRIES] 
 	= 
@@ -105,67 +106,129 @@ static const struct watch_due_pet PET_DB[PET_ENTRIES]
 		{	
 			/* id */ 0,
 			/* species */ "FLAME",
-			{
-				0,26,11,14,6
+			{ /* alive sprite */
+				/* x */ 0, /* y */	26, /* width */ 11, /* height*/ 14, /* frames*/ 6
 			},
-			{
-				0,26,11,14,6
+			{ /* dead sprite */
+						66,			26,				13,				14,				1
 			},
-			{
+			{ /* Foods */
 				1, 2, 3, 2
 			},
 			{ /* main view adjustments */
 				{ /* floating status */
 					/* x offset */	1, /* y offset */	-5,
-					/* scale */		200
+					/* scale */		4
 				},
 				{ /* pet sprite */
-					/* x offset */	-8, /* y offset */	35,
-					/* scale */		10
+					/* x offset */	-5, /* y offset */	35,
+					/* scale */		7,	/* padding */	16
 				},
 				{ /* floor disc */
 					/* x offset */	0, /* y offset */	95,
-					/* scale */		200
+					/* scale */		4
 				}
 			},
 
 			{ /* info view adjustments */ 
 				{ /* pet sprite */
 					/* x offset */	0, /* y offset */	16,
-					/* scale */		110
+					/* scale */		5
+				}
+			}
+		},
+		{ /* id = 1 - due pet */
+			/* id */ 1,
+			/* species */ "GOD",
+			{ /* alive sprite */
+				/* x */ 47, /* y */	0, /* width */	16, /* height*/ 16, /* frames*/ 2
+			},
+			{ /* dead sprite */
+						31,			0,				16,				16,				1
+			},
+			{ /* Foods */
+				4, 5, 6, 7
+			},
+			{ /* main view adjustments */
+				{ /* floating status */
+					/* x offset */	1, /* y offset */	-5,
+					/* scale */		4
+				},
+				{ /* pet sprite */
+					/* x offset */	-5, /* y offset */	35,
+					/* scale */		7,	/* padding */	0
+				},
+				{ /* floor disc */
+					/* x offset */	0, /* y offset */	95,
+					/* scale */		4
+				}
+			},
+
+			{ /* info view adjustments */ 
+				{ /* pet sprite */
+					/* x offset */	0, /* y offset */	16,
+					/* scale */		5
 				}
 			}
 		}
 	};
 
 struct pet_item {
-	char sprite[MRE_STRING_MAX_SIZE];
+	struct sprite sprite;
 	VMINT drop_chance;
 	VMINT nutrition;
 };
 
-#define ITEM_ENTRIES 4
+#define ITEM_ENTRIES 8
 
 static const struct pet_item PET_ITEMS[ITEM_ENTRIES] 
 	=
 	{
 		{ /* id 0 */
-			"no_item.gif", 0, 0
+			/* No item */
+			{0, 18, 8, 8, 1}, 0, 0
 		},
 		{ /* id 1 */
-			/* sprite */		"food_amber.gif",
+			/* Amber */
+			/* sprite */		{8, 18, 8, 8, 1},
 			/* drop chance */	20,
 			/* nutrition*/		5
 		},
 		{ /* id 2 */
-			/* sprite */		"food_coal.gif",
+			/* Coal */
+			/* sprite */		{16, 18, 8, 8, 1},
 			/* drop chance */	5,
 			/* nutrition */		12
 		},
 		{ /* id 3 */
-			/* sprite */		"food_dead_bush.gif",
+			/* Dead bush */
+			/* sprite */		{24, 18, 8, 8, 1},
 			/* drop chance */	10,
 			/* nutrition */		3
+		},
+		{ /* id 4 */
+			/* Cooked meat */
+			/* sprite */		{32, 18, 8, 8, 1},
+			/* drop chance */	4,
+			/* nutrition */		15
+		},
+		{ /* id 5 */
+			/* Raw meat */
+			/* sprite */		{40, 18, 8, 8, 1},
+			/* drop chance */	16,
+			/* nutrition */		9
+		},
+		{ /* id 6 */
+			/* Melon */
+			/* sprite */		{48, 18, 8, 8, 1},
+			/* drop chance */	20,
+			/* nutrition */		2
+		},
+		{ /* id 7 */
+			/* Mushroom */
+			/* sprite */		{56, 18, 8, 8, 1},
+			/* drop chance */	20,
+			/* nutrition */		5
 		}
 	};
 
