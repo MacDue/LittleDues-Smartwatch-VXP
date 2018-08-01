@@ -175,7 +175,7 @@ view_func_watch_due_main(struct mre* mre) {
 			nk_button_transparent(ctx);
 			pet_tap = nk_button_image(ctx, image);
 			if (!current_pet_state.dead) {
-				if (pet_tap == NK_DOUBLE_TAPPED) {
+				if (pet_tap == NK_LONG_TAPPED) {
 					nk_mre_set_view(ctx, &view_pet_info);
 				} else if (pet_tap == NK_TAPPED) {
 					reset_particles = true;

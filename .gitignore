@@ -63,5 +63,4 @@ Debug
 #Log files
 *.log
 
-
-
+*.ncb

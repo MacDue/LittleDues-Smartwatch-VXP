@@ -1033,7 +1033,7 @@
 				nk_input_button(&mre.ctx, NK_BUTTON_RIGHT, x, y, 0);
 				update_gui();
 				break;
-			case VM_PEN_EVENT_DOUBLE_CLICK:
+			case VM_PEN_EVENT_LONG_TAP/*VM_PEN_EVENT_DOUBLE_CLICK*/:
 				nk_input_motion(&mre.ctx, x, y);
 				nk_input_button(&mre.ctx, NK_BUTTON_RIGHT, x, y, 1);
 				update_gui();

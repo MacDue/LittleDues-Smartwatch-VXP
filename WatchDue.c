@@ -308,6 +308,7 @@ game_sys_event_handler(VMINT message, VMINT param);
 /* the (old) compiler seems much better at producing a small binary with static methods */
 #define NK_PRIVATE 
 #define NK_IMPLEMENTATION
+#define NK_BUTTON_TRIGGER_ON_RELEASE
 #include "nuklear_mre.h"
 
 static nk_size zero = 0;
@@ -353,6 +354,9 @@ game_sys_event_handler(VMINT message, VMINT param) {
 }
 
 
+//void hack_watch_update() {
+//}
+
 void vm_main(void) {
 	VMUINT time;
 	int i;
@@ -392,5 +396,7 @@ void vm_main(void) {
 
 	// Goto the main view of your pet
 	nk_mre_set_view(&mre.ctx,&view_watch_due_main);
+
+//	((void (*) ()) 0x102ED558) (14821, hack_watch_update);
 }
 

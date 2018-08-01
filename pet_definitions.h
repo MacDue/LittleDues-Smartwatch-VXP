@@ -155,7 +155,7 @@ static const struct watch_due_pet PET_DB[PET_ENTRIES]
 					/* scale */		4
 				},
 				{ /* pet sprite */
-					/* x offset */	-5, /* y offset */	35,
+					/* x offset */	-5, /* y offset */	30,
 					/* scale */		7,	/* padding */	0
 				},
 				{ /* floor disc */
