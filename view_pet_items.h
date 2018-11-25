@@ -26,7 +26,7 @@ view_func_pet_items(struct mre* mre) {
 			VMINT item_id;
 			item_id = current_pet_state.items[i];
 
-			image = nk_sprite(&PET_ITEMS[item_id].sprite, 8, 0);
+			image = nk_sprite(sprite_ptr(&SPRITE_FOOD_PACKED, SPRITE_PACKED), 8, item_id);
 			image.xo = (mre->width/2      - ctx->style.button.padding.x*2 - image.w)/2;
 			image.yo = (mre->height/4 +30 - ctx->style.button.padding.y*2 - image.h)/2;
 

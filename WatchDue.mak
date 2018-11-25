@@ -57,15 +57,15 @@ HEADER_FILES= \
 
 	./sprites.h \
 
+	./undef_stdlib.h \
+
 	./view_pet_info.h \
 
 	./view_pet_items.h \
 
 	./view_watch_due_main.h \
 
-	./views.h \
-
-	WatchDue.h
+	./views.h
 
 RESOURCE_FILES= \
 

@@ -14,10 +14,10 @@ extern struct mre_view_p view_watch_due_main;
 #include "sprites.h"
 
 
-const struct sprite SPRITE_PARTICLE_HAPPY	= {18, 0, 9,  9,  1};
-const struct sprite SPRITE_FLOOR_DISC		= {0, 9,  29, 9,  1};
-const struct sprite SPRITE_MOOD_HAPPY		= {0, 0,  9,  9,  1};
-const struct sprite SPRITE_MOOD_SAD			= {9, 0,  9,  9,  1};
+const struct SpriteSimple SPRITE_PARTICLE_HAPPY	= {18, 0, 9,  9};
+const struct SpriteSimple SPRITE_FLOOR_DISC		= {0, 9,  29, 9};
+const struct SpriteSimple SPRITE_MOOD_HAPPY		= {0, 0,  9,  9};
+const struct SpriteSimple SPRITE_MOOD_SAD			= {9, 0,  9,  9};
 
 #define PARTICLE_HAPPY_SCALE	2
 #define PARTICLE_FOOD_SCALE		4
@@ -31,8 +31,7 @@ static bool main_view_one_time_setup_done = false;
 struct mre_view_p view_watch_due_main;
 static void load_or_create_pet(void);
 
-static struct 
-view_main_adjustments_calculated {
+static struct {
 	VMUINT8 view_height_padding_top;	
 
 	VMUINT8 pet_sprite_draw_w;
@@ -62,7 +61,7 @@ watch_due_main_timer_hdl(VMINT tid) {
 static void
 setup_watch_due_main(struct mre* mre) {
 	struct nk_context* ctx = &mre->ctx;
-	const struct watch_due_pet* pet_def = current_pet_state.def;
+	const struct WatchDuePet* pet_def = current_pet_state.def;
 
 	if (!main_view_one_time_setup_done) {
 		vm_create_timer(100, watch_due_main_timer_hdl);
@@ -75,10 +74,10 @@ setup_watch_due_main(struct mre* mre) {
 	ctx->style.button.image_padding.y = 0;
 
 	MAGIC_NUMBERS.pet_sprite_draw_w 
-		= current_pet_state.sprite->w * pet_def->view_main_adjustments.pet_sprite.scale;
+		= current_pet_state.sprite.ptr.packed_sprite->w * pet_def->view_main_adjustments.pet_sprite.scale;
 
 	MAGIC_NUMBERS.pet_sprite_draw_h
-		= current_pet_state.sprite->h * pet_def->view_main_adjustments.pet_sprite.scale;
+		= current_pet_state.sprite.ptr.packed_sprite->h * pet_def->view_main_adjustments.pet_sprite.scale;
 
 	MAGIC_NUMBERS.floating_status_draw_wh
 		= SPRITE_MOOD_HAPPY.w * pet_def->view_main_adjustments.floating_status.scale;
@@ -99,7 +98,7 @@ static bool reset_feeding_particles = false;
 
 static void 
 view_func_watch_due_main(struct mre* mre) {
-	const struct watch_due_pet* pet_def = current_pet_state.def;
+	const struct WatchDuePet* pet_def = current_pet_state.def;
 
 	static struct nk_color mood_bar_color = {245, 223, 102, 255};
 	static struct nk_color food_bar_color = {245, 102, 206, 255};
@@ -120,7 +119,7 @@ view_func_watch_due_main(struct mre* mre) {
 		nk_layout_row_static(ctx, 0, 0, 2); /* invisible row */
 
 		// Ground disc (below pet)
-		image = nk_sprite(&SPRITE_FLOOR_DISC, pet_def->view_main_adjustments.floor_disc.scale, 0);
+		image = nk_sprite(sprite_ptr(&SPRITE_FLOOR_DISC, SPRITE_SIMPLE), pet_def->view_main_adjustments.floor_disc.scale, 0);
 		image.xo = (mre->width-image.w)/2 
 					+ pet_def->view_main_adjustments.floor_disc.x_offset;
 		image.yo = MAGIC_NUMBERS.view_height_padding_top 
@@ -132,8 +131,14 @@ view_func_watch_due_main(struct mre* mre) {
 			nk_layout_row_begin(ctx, NK_STATIC, 0, 2);
 			{
 				VMINT mood = (VMINT) get_current_mood(current_pet_state.mood, current_pet_state.hunger);
-				image = nk_sprite(mood <= GOOD_BAD_MOOD_TIPPING_POINT 
-					? &SPRITE_MOOD_SAD : &SPRITE_MOOD_HAPPY, pet_def->view_main_adjustments.floating_status.scale, 0);
+				image = nk_sprite(
+					sprite_ptr(
+						mood <= GOOD_BAD_MOOD_TIPPING_POINT ? &SPRITE_MOOD_SAD : &SPRITE_MOOD_HAPPY,
+						SPRITE_SIMPLE
+					), 
+					pet_def->view_main_adjustments.floating_status.scale, 
+					0
+				);
 				image.w = image.h = MAGIC_NUMBERS.floating_status_draw_wh;
 				nk_layout_row_push(ctx,(mre->width - image.w)/2);
 				nk_progress(ctx, &zero, 100, 0);
@@ -166,10 +171,6 @@ view_func_watch_due_main(struct mre* mre) {
 			image.h = PET_AREA_WH; 
 			image.xo = pet_def->view_main_adjustments.pet_sprite.x_offset;
 			image.yo = pet_def->view_main_adjustments.pet_sprite.y_offset;
-			
-			if (current_pet_state.glitch) {
-				image.pre_draw = glitch_pet_sprite;
-			}
 
 			// Double tap on pet to open pet info
 			nk_button_transparent(ctx);
@@ -220,8 +221,9 @@ view_func_watch_due_main(struct mre* mre) {
 		if (current_pet_state.fed_item) {
 			if (nk_particles
 				(
-					ctx, mre->width/2, -mre->height/2, 
-					&PET_ITEMS[current_pet_state.fed_item].sprite, 
+					ctx, mre->width/2, -(nk_int)mre->height/2, 
+					sprite_ptr(&SPRITE_FOOD_PACKED, SPRITE_PACKED),
+					current_pet_state.fed_item,
 					PARTICLE_FOOD_SCALE, &reset_feeding_particles)
 				) { // on particle end
 					feed_pet();
@@ -229,8 +231,11 @@ view_func_watch_due_main(struct mre* mre) {
 		} else if (particles_on && !current_pet_state.dead) {
 			if (nk_particles
 				(
-					ctx, mre->width/2, -mre->height/2, 
-					&SPRITE_PARTICLE_HAPPY, PARTICLE_HAPPY_SCALE, &reset_particles)
+					ctx, mre->width/2, -(nk_int)mre->height/2, 
+					sprite_ptr(&SPRITE_PARTICLE_HAPPY, SPRITE_SIMPLE),
+					0,
+					PARTICLE_HAPPY_SCALE, 
+					&reset_particles)
 				) { // on particle end
 					play_with_pet();
 				}

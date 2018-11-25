@@ -5,6 +5,7 @@
 
 #include "nuklear.h"
 #include "mre_components.h"
+#include "sprites.h"
 #include "share.h"
 #include "vmlog.h"
 #include "vmres.h"
@@ -788,12 +789,49 @@
 
 	}
 
+	__inline clamp(VMUINT16 val, VMUINT16 max) {
+		return val < max ? val : max;
+	}
+
+	VMUINT16 rotate_hue(
+		const VMUINT16 color,
+		float H
+	)
+	{
+	  float U = cos(H*M_PI/180);
+	  float W = sin(H*M_PI/180);
+	  VMUINT8 in_r = (color >> (6 + 5)) & 0x1F;
+	  VMUINT8 in_g = (color >> 5) & 0x3F;
+	  VMUINT8 in_b = color & 0x1F;
+
+	  VMUINT16 r = clamp((.299+.701*U+.168*W)*in_r
+		+ (.587-.587*U+.330*W)*in_g
+		+ (.114-.114*U-.497*W)*in_b, 31);
+	  VMUINT16 g = clamp((.299-.299*U-.328*W)*in_r
+		+ (.587+.413*U+.035*W)*in_g
+		+ (.114-.114*U+.292*W)*in_b, 63);
+	  VMUINT16 b = clamp((.299-.3*U+1.25*W)*in_r
+		+ (.587-.588*U-1.05*W)*in_g
+		+ (.114+.886*U-.203*W)*in_b, 31);
+	  return (r << (6 + 5)) | (g << 5) | b;
+	}
+
 	#define CHROMA_KEY 47092
-	static void draw_sprite_scaled(VMUINT8* sprite_buffer, const struct sprite* sprite, VMINT frame, VMINT scale, VMUINT8* dest, VMINT x, VMINT y) {
+
+	static void draw_simple_sprite_scaled(
+		VMUINT8* sprite_buffer,
+		VMINT sprite_x,
+		VMINT sprite_y,
+		VMINT sprite_w,
+		VMINT sprite_h,
+		VMINT scale,
+		VMUINT8* dest, 
+		VMINT x, VMINT y
+	) {
 		VMINT s_x, s_y; // sprite pixel x, y
-		for (s_y = sprite->y; s_y < sprite->y + sprite->h; s_y++) {
+		for (s_y = sprite_y; s_y < sprite_y + sprite_h; s_y++) {
 			VMINT t_x = x;
-			for (s_x = sprite->x + sprite->w * frame; s_x < sprite->x + sprite->w * frame + sprite->w; s_x++) {
+			for (s_x = sprite_x + sprite_w * 0; s_x < sprite_x + sprite_w * 0 + sprite_w; s_x++) {
 				// Redraw each pixel as a filled rect with scale width & height.
 				VMUINT16 pixel = vm_graphic_get_pixel(sprite_buffer, s_x, s_y);
 				if (pixel != CHROMA_KEY) {
@@ -802,6 +840,34 @@
 				t_x+=scale;
 			}
 			y+=scale;
+		}
+	}
+
+	static void draw_sprite_scaled(VMUINT8* sprite_buffer, struct SpritePtr sprite, VMINT frame, VMINT scale, VMUINT8* dest, VMINT x, VMINT y) {
+		if (sprite.type == SPRITE_SIMPLE) {
+			struct SpriteSimple const * const ss = sprite.ptr.simple_sprite;
+			draw_simple_sprite_scaled(sprite_buffer, ss->x, ss->y, ss->w, ss->h, scale, dest, x, y);
+		} else {
+			// Packed sprite
+			struct SpritePacked const * const ps = sprite.ptr.packed_sprite;
+			struct SpritePackedFrame const * packed_frame = &ps->frames[frame];
+			struct SpritePart const * sprite_parts = ps->parts;
+			VMINT p;
+			for (p = 0; p < packed_frame->part_count; p++) {
+				struct RenderPart const * rpart = &packed_frame->render_parts[p];
+				struct SpritePart const * spart = &sprite_parts[rpart->part_index];
+				draw_simple_sprite_scaled(
+					sprite_buffer, 
+					spart->x,
+					spart->y,
+					spart->w,
+					spart->h,
+					scale,
+					dest,
+					x + rpart->r_x * scale,
+					y + rpart->r_y * scale
+				);
+			}
 		}
 	}
 

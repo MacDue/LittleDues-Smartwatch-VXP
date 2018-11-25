@@ -4,14 +4,9 @@
 #include "macro_utils.h"
 #define PARTICLE_COUNT 10
 
-double cos(double a);
-double sin(double a);
-
-
-
 
 static nk_int 
-nk_particles(struct nk_context* ctx, nk_int x, nk_int y, const struct sprite* sprite, nk_int particle_scale, bool* reset) {
+nk_particles(struct nk_context* ctx, nk_int x, nk_int y, struct SpritePtr sprite, nk_int frame, nk_int particle_scale, bool* reset) {
 	nk_int p;
 	double angle, angle_delta;
 	static double r;
@@ -37,7 +32,7 @@ nk_particles(struct nk_context* ctx, nk_int x, nk_int y, const struct sprite* sp
 	nk_layout_row_static(ctx, 0, 0, PARTICLE_COUNT);
 	for (p = 0; p < PARTICLE_COUNT; p++) {
 		struct nk_image particle;
-		particle = nk_sprite(sprite, particle_scale, 0);
+		particle = nk_sprite(sprite, particle_scale, frame);
 		particle.xo = (short)(x - particle.w/2 + r * cos(angle * DEG_TO_RAD));
 		particle.yo = (short)(y - particle.h/2 + r * sin(angle * DEG_TO_RAD));
 		nk_image(ctx, particle);

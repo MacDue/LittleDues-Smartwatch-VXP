@@ -356,7 +356,7 @@ typedef char nk_glyph[NK_UTF_SIZE];
 typedef union {void *ptr; int id;} nk_handle;
 typedef void (*nk_image_pre_draw)(VMUINT8* img_data);
 #include "sprites.h"
-struct nk_image {nk_handle handle;unsigned short w,h, frame; const struct sprite* sprite; short xo,yo, scale;unsigned short region[4]; const char *path; nk_image_pre_draw pre_draw;};
+struct nk_image {nk_handle handle;unsigned short w,h, frame; struct SpritePtr sprite; short xo,yo, scale;unsigned short region[4]; const char *path; nk_image_pre_draw pre_draw;};
 struct nk_cursor {struct nk_image img; struct nk_vec2 size, offset;};
 struct nk_scroll {unsigned short x, y;};
 enum nk_heading {NK_UP, NK_RIGHT, NK_DOWN, NK_LEFT};
@@ -4091,15 +4091,25 @@ nk_image_path(const char *path){
 }
 
 NK_API struct nk_image
-nk_sprite(const struct sprite* sprite, short scale, short frame) {
+nk_sprite(struct SpritePtr sprite, short scale, short frame) {
 	struct nk_image img;
 	nk_zero(&img, sizeof(img));
 	img.sprite = sprite;
 	img.scale = scale;
-	img.w = sprite->w * scale;
-	img.h = sprite->h * scale;
+	switch (sprite.type) {
+		case SPRITE_SIMPLE:
+			img.w = sprite.ptr.simple_sprite->w;
+			img.h = sprite.ptr.simple_sprite->h;
+			break;
+		case SPRITE_PACKED:
+			img.w = sprite.ptr.packed_sprite->w;
+			img.h = sprite.ptr.packed_sprite->h;
+			break;
+	}
+	img.w *= scale;
+	img.h *= scale;
 	img.frame = frame;
-	img.path = "sprites.bmp";
+	img.path = SPRITE_SHEET;
 	return img;
 }
 

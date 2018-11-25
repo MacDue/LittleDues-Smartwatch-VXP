@@ -17,7 +17,7 @@
 	GEN(DOG)			\
 	GEN(ODD)			
 
-static const char P_TYPE_STRS[8 /* mood count */][10 /* length of "PEACEFUL" + 1*/] = {
+static char const P_TYPE_STRS[8 /* mood count */][10 /* length of "PEACEFUL" + 1*/] = {
 	P_TYPES(GENERATE_STRING)
 };
 
@@ -32,14 +32,7 @@ static const char MOOD_STRS[2 /* mood count */][6 /* length of "HAPPY" + 1 */] =
 	MOODS(GENERATE_STRING)
 };
 
-struct pet_sprite {
-	VMUINT8 width, height;
-	VMUINT8 frame_count;
-	VMUINT16 frame_rate; /* zero means not animated */
-	char frames[MAX_SPRITE_FRAMES][MRE_STRING_MAX_SIZE];
-};
-
-struct position_and_scale_adjustments {
+struct PositionAndScaleAdjustments {
 	VMINT16 x_offset;
 	VMINT16 y_offset;
 	VMUINT16 scale;
@@ -74,44 +67,41 @@ get_current_mood(VMUINT8 mood, VMUINT8 hunger) {
 	return mood < PET_STAT_MAX/2 || hunger < PET_STAT_MAX/3 ? SAD : HAPPY;
 }
 
-struct watch_due_pet {
+struct WatchDuePet {
 
 	VMINT id;
 
 	char species[MRE_STRING_MAX_SIZE];
 
-	struct sprite sprite;
-	struct sprite dead_sprite;
+	struct SpritePtr sprite;
 	VMINT acceptable_foods[PET_ITEMS_MAX];
 
 	struct {
-		struct position_and_scale_adjustments floating_status;
-		struct position_and_scale_adjustments pet_sprite;
-		struct position_and_scale_adjustments floor_disc;
+		struct PositionAndScaleAdjustments floating_status;
+		struct PositionAndScaleAdjustments pet_sprite;
+		struct PositionAndScaleAdjustments floor_disc;
 	} view_main_adjustments;
 
 	struct {
-		struct position_and_scale_adjustments pet_sprite;
+		struct PositionAndScaleAdjustments pet_sprite;
 	} view_info_adjustments;
 
 };
 
 #ifdef PETS_SETUP
 
-#define PET_ENTRIES 2
+#define FLAME_PET 0
+#define DUE_PET 1
+#define LILAC_DRAGON_PET 2
 
-static const struct watch_due_pet PET_DB[PET_ENTRIES] 
+static struct WatchDuePet PET_DB[PET_ENTRIES] 
 	= 
 	{ /* id = 0 - flame pet */
 		{	
 			/* id */ 0,
 			/* species */ "FLAME",
-			{ /* alive sprite */
-				/* x */ 0, /* y */	26, /* width */ 11, /* height*/ 14, /* frames*/ 6
-			},
-			{ /* dead sprite */
-						66,			26,				13,				14,				1
-			},
+			/* sprite */
+			{ { NULL }, SPRITE_PACKED }, /* to be loaded */
 			{ /* Foods */
 				1, 2, 3, 2
 			},
@@ -121,8 +111,8 @@ static const struct watch_due_pet PET_DB[PET_ENTRIES]
 					/* scale */		4
 				},
 				{ /* pet sprite */
-					/* x offset */	-5, /* y offset */	35,
-					/* scale */		7,	/* padding */	16
+					/* x offset */	-9, /* y offset */	30,
+					/* scale */		7,	/* padding */	0
 				},
 				{ /* floor disc */
 					/* x offset */	0, /* y offset */	95,
@@ -132,7 +122,7 @@ static const struct watch_due_pet PET_DB[PET_ENTRIES]
 
 			{ /* info view adjustments */ 
 				{ /* pet sprite */
-					/* x offset */	0, /* y offset */	16,
+					/* x offset */	0, /* y offset */	10,
 					/* scale */		5
 				}
 			}
@@ -140,12 +130,8 @@ static const struct watch_due_pet PET_DB[PET_ENTRIES]
 		{ /* id = 1 - due pet */
 			/* id */ 1,
 			/* species */ "GOD",
-			{ /* alive sprite */
-				/* x */ 47, /* y */	0, /* width */	16, /* height*/ 16, /* frames*/ 2
-			},
-			{ /* dead sprite */
-						31,			0,				16,				16,				1
-			},
+			/* sprite */
+			{ { NULL }, SPRITE_PACKED }, /* to be loaded */
 			{ /* Foods */
 				5, 6, 7, 8
 			},
@@ -155,7 +141,7 @@ static const struct watch_due_pet PET_DB[PET_ENTRIES]
 					/* scale */		4
 				},
 				{ /* pet sprite */
-					/* x offset */	-5, /* y offset */	30,
+					/* x offset */	-5, /* y offset */	25,
 					/* scale */		7,	/* padding */	0
 				},
 				{ /* floor disc */
@@ -170,100 +156,100 @@ static const struct watch_due_pet PET_DB[PET_ENTRIES]
 					/* scale */		5
 				}
 			}
+		},
+		{ /* id = 2 - lilac dragon*/
+			/* id */ 2,
+			/* species */ "DRAGON",
+			/* sprite */
+			{ { NULL }, SPRITE_PACKED }, /* to be loaded */
+			{ /* Foods */
+				4, 8, 5, 7
+			},
+			{ /* main view adjustments */
+				{ /* floating status */
+					/* x offset */	1, /* y offset */	-5,
+					/* scale */		4
+				},
+				{ /* pet sprite */
+					/* x offset */	-5, /* y offset */	15,
+					/* scale */		7,	/* padding */	0
+				},
+				{ /* floor disc */
+					/* x offset */	0, /* y offset */	95,
+					/* scale */		4
+				}
+			},
+
+			{ /* info view adjustments */ 
+				{ /* pet sprite */
+					/* x offset */	0, /* y offset */	5,
+					/* scale */		5
+				}
+			}
 		}
 	};
 
-struct pet_item {
-	struct sprite sprite;
+struct PetItem {
 	VMINT drop_chance;
 	VMINT nutrition;
 };
 
-#define ITEM_ENTRIES 9
-
-static const struct pet_item PET_ITEMS[ITEM_ENTRIES] 
+static struct PetItem const PET_ITEMS[ITEM_ENTRIES] 
 	=
 	{
 		{ /* id 0 */
 			/* No item */
-			{0, 18, 8, 8, 1}, 0, 0
+			0, 0
 		},
 		{ /* id 1 */
 			/* Amber */
-			/* sprite */		{8, 18, 8, 8, 1},
 			/* drop chance */	20,
 			/* nutrition*/		5
 		},
 		{ /* id 2 */
 			/* Coal */
-			/* sprite */		{16, 18, 8, 8, 1},
 			/* drop chance */	5,
 			/* nutrition */		12
 		},
 		{ /* id 3 */
 			/* Dead bush */
-			/* sprite */		{24, 18, 8, 8, 1},
 			/* drop chance */	10,
 			/* nutrition */		3
 		},
 		{ /* id 4 */
 			/* Cooked meat */
-			/* sprite */		{32, 18, 8, 8, 1},
 			/* drop chance */	5,
 			/* nutrition */		12
 		},
 		{ /* id 5 */
 			/* Human 1 */
-			/* sprite */		{40, 18, 8, 8, 1},
 			/* drop chance */	9,
 			/* nutrition */		6
 		},
 		{ /* id 6 */
 			/* Human 2 */
-			/* sprite */		{48, 18, 8, 8, 1},
 			/* drop chance */	10,
 			/* nutrition */		11
 		},
 		{ /* id 7 */
 			/* Human 3 */
-			/* sprite */		{56, 18, 8, 8, 1},
 			/* drop chance */	7,
 			/* nutrition */		8
 		},
 		{ /* id 8 */
 			/* Human 4 */
-			/* sprite */		{64, 18, 8, 8, 1},
 			/* drop chance */	10,
 			/* nutrition */		3
 		}
 	};
 
 
-
-#define GIF_GCT_FLAG(p_byte) (p_byte & (1 << 7))
-#define GIF_COLOUR_RES(p_byte) (p_byte & (7 << 5))
-#define GIF_GCT_SIZE(p_byte) (p_byte & 7)
-
-
-void glitch_pet_resource(VMUINT8* gif_res, VMUINT8 glitch_val) {
-	VMUINT8 packing_byte;
-	VMINT colour_table_len;
-	VMINT c;
-
-	if (strncmp("GIF89a", gif_res, 6) != 0) {
-		return;
-	}
-	packing_byte = *(gif_res+10);
-	if (!GIF_GCT_FLAG(packing_byte)) {
-		return;
-	}
-	c = GIF_GCT_SIZE(packing_byte) + 1;
-	colour_table_len = 1 << (GIF_GCT_SIZE(packing_byte) +1);
-	for (c = 0; c < colour_table_len; c++) {
-		*(gif_res+13+c) ^= glitch_val;
-	}
+static void 
+init_pets(void) {
+	PET_DB[FLAME_PET].sprite.ptr.packed_sprite = &SPRITE_FLAME_PACKED;
+	PET_DB[DUE_PET].sprite.ptr.packed_sprite = &SPRITE_DUE_PACKED;
+	PET_DB[LILAC_DRAGON_PET].sprite.ptr.packed_sprite = &SPRITE_LILAC_DRAGON_PACKED;
 }
-
 
 #undef PETS_SETUP
 #endif

@@ -9,21 +9,18 @@ extern struct mre_view_p view_pet_info;
 
 struct mre_view_p view_pet_info;
 
-static struct 
-view_pet_info_adjustments_calculated {
-
+static struct {
 	VMUINT8 pet_sprite_draw_w;
-
 } view_pet_info_magic_numbers;
 
 #define MAGIC_NUMBERS view_pet_info_magic_numbers
 
 static void
 setup_pet_info(struct mre* mre) {
-	const struct watch_due_pet* pet_def = current_pet_state.def;
-	
+	const struct WatchDuePet* pet_def = current_pet_state.def;
+	// assume pet sprites are packed
 	MAGIC_NUMBERS.pet_sprite_draw_w 
-		= pet_def->sprite.w 
+		= pet_def->sprite.ptr.packed_sprite->w 
 			* pet_def->view_info_adjustments.pet_sprite.scale;
 
 }
@@ -31,7 +28,7 @@ setup_pet_info(struct mre* mre) {
 
 static void 
 view_func_pet_info(struct mre* mre) {
-	const struct watch_due_pet* pet_def = current_pet_state.def;
+	const struct WatchDuePet* pet_def = current_pet_state.def;
 	struct nk_context* ctx = &mre->ctx;
 	struct nk_panel layout;
 	struct nk_image image;
@@ -51,9 +48,6 @@ view_func_pet_info(struct mre* mre) {
 				pet_def->view_info_adjustments.pet_sprite.scale, pet_sprite_index);
 			image.xo = pet_def->view_info_adjustments.pet_sprite.x_offset;
 			image.yo = pet_def->view_info_adjustments.pet_sprite.y_offset;
-			if (current_pet_state.glitch) {
-				image.pre_draw = glitch_pet_sprite;
-			}
 			nk_image(ctx,image);
 
 			nk_layout_row_end(ctx);

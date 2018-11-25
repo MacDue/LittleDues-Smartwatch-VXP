@@ -9,7 +9,11 @@
 
 	Also no memory allocations (outside of the few nuklear might do).
 
-	Version: Super rushed & jumbled mess to test v0.0.1
+	Version: Super rushed & jumbled mess to test v0.0.2
+
+	- Changes:
+
+		0.0.2: Added packed sprites, lilac dragon, & slowed time.
 */
 
 #include "vmsys.h"
@@ -21,8 +25,9 @@
 #include "vm4res.h"
 #include "vmtimer.h"
 #include "macro_utils.h"
+#include "undef_stdlib.h"
 
-#define		DEBUG
+// #define		DEBUG
 #define		SUPPORT_BG
 
 #if 0
@@ -35,7 +40,13 @@ VMINT		layer_hdl[1];
 
 typedef enum {true = 1, false = 0} bool;
 
-//////////// PET STATE & LOGIC
+//////////// PET SPRITES, STATE, & LOGIC
+
+#define PET_ENTRIES 3
+#define ITEM_ENTRIES 9
+
+#define SPRITES_SETUP
+#include "sprites.h"
 
 #define PET_ITEMS_MAX 4
 #define PET_STAT_MAX 70
@@ -51,12 +62,12 @@ current_pet_state {
 	VMUINT8 mood_trait, hunger_trait;
 	VMUINT8 mood;
 	VMUINT8 hunger;
-	float age;
-	VMINT items[PET_ITEMS_MAX];
-	bool dead;
-	const struct watch_due_pet* def;
-	const struct sprite * sprite;
 	VMUINT8 glitch;
+	VMINT items[PET_ITEMS_MAX];
+	float age;
+	bool dead;
+	struct WatchDuePet const * def;
+	struct SpritePtr sprite;
 	VMINT fed_item;
 } current_pet_state;
 
@@ -64,13 +75,18 @@ static int pet_sprite_index	= 0;
 
 static void
 update_pet_frame(VMINT tid) {
-	pet_sprite_index = ++pet_sprite_index 
-							% current_pet_state.sprite->frame_count;
+	// Assume pet sprites are always packed.
+	struct SpritePacked const * ps = current_pet_state.sprite.ptr.packed_sprite;
+	if (!current_pet_state.dead) {
+		pet_sprite_index = ++pet_sprite_index % ps->frame_count;
+	} else {
+		// Dead frame is stored directly after the animation frames.
+		pet_sprite_index = ps->frame_count;
+	}
 }
 
 static void
 save_pet_data(void) {
-	VMWCHAR file_name_w[MRE_FILE_NAME_SIZE];
 	VMINT file_hdl;
 	VMUINT  written;
 	VMUINT save_time;
@@ -79,16 +95,16 @@ save_pet_data(void) {
 	if (file_hdl < 0)
 		return; // error (not much can be done)
 	(void) vm_get_curr_utc(&save_time);
-	vm_file_write(file_hdl, (VMINT*)&current_pet_state.def->id,		 sizeof(VMINT),					&written);
-	vm_file_write(file_hdl, &current_pet_state.mood,		 sizeof(VMUINT8),				&written);
-	vm_file_write(file_hdl, &current_pet_state.mood_trait,	 sizeof(VMUINT8),				&written);
-	vm_file_write(file_hdl, &current_pet_state.hunger,		 sizeof(VMUINT8),				&written);
-	vm_file_write(file_hdl, &current_pet_state.hunger_trait, sizeof(VMUINT8),				&written);
-	vm_file_write(file_hdl, &current_pet_state.age,			 sizeof(float),					&written);
-	vm_file_write(file_hdl, &save_time,						 sizeof(VMUINT),				&written);
-	vm_file_write(file_hdl, current_pet_state.items,	PET_ITEMS_MAX * sizeof(VMINT),		&written);
-	vm_file_write(file_hdl, &current_pet_state.dead,			 sizeof(bool),				&written);
-	vm_file_write(file_hdl, &current_pet_state.glitch,		sizeof(VMUINT8),				&written);
+	vm_file_write(file_hdl, (VMINT*)&current_pet_state.def->id,	 sizeof(VMINT),			&written);
+	vm_file_write(file_hdl, &current_pet_state.mood,		     sizeof(VMUINT8),		&written);
+	vm_file_write(file_hdl, &current_pet_state.mood_trait,	     sizeof(VMUINT8),		&written);
+	vm_file_write(file_hdl, &current_pet_state.hunger,		     sizeof(VMUINT8),		&written);
+	vm_file_write(file_hdl, &current_pet_state.hunger_trait,     sizeof(VMUINT8),		&written);
+	vm_file_write(file_hdl, &current_pet_state.age,			     sizeof(float),			&written);
+	vm_file_write(file_hdl, &save_time,						     sizeof(VMUINT),		&written);
+	vm_file_write(file_hdl, current_pet_state.items,	PET_ITEMS_MAX * sizeof(VMINT),	&written);
+	vm_file_write(file_hdl, &current_pet_state.dead,			 sizeof(bool),			&written);
+	vm_file_write(file_hdl, &current_pet_state.glitch,           sizeof(VMUINT8),		&written);
 	vm_file_close(file_hdl);
 }
 
@@ -106,7 +122,7 @@ static void apply_time_to_game(VMUINT save_time) {
 	time_diff = current_time - save_time;
 	current_pet_state.age += (float)time_diff/60/60; // pet age is in hours
 	
-	time_attrition = (time_diff/2 + rand() % time_diff)/60;
+	time_attrition = (time_diff/3 + rand() % time_diff)/60;
 	
 	// Gives about 10 hours until the pet will die
 	mood_loss = (VMINT)(time_attrition * (float)current_pet_state.mood_trait/1000);
@@ -177,11 +193,12 @@ static void load_or_create_pet(void) {
 		current_pet_state.mood_trait	= RAND(100) + 1;
 		current_pet_state.hunger_trait	= RAND(100) + 1;
 		current_pet_state.dead			= false;
+		current_pet_state.glitch        = 0;
 		if (RAND(100) < 5) {
 			current_pet_state.glitch = RAND(255) + 1;
 		}
 		memset(current_pet_state.items, 0, PET_ITEMS_MAX * sizeof(VMINT));
-		current_pet_state.sprite = &current_pet_state.def->sprite;
+		current_pet_state.sprite = current_pet_state.def->sprite;
 		return;
 	}
 
@@ -197,7 +214,7 @@ static void load_or_create_pet(void) {
 	vm_file_read(file_hdl, &current_pet_state.glitch,		sizeof(VMUINT8),			&read);
 	vm_file_close(file_hdl);
 	current_pet_state.def = &PET_DB[pet_id];
-	current_pet_state.sprite = &current_pet_state.def->sprite;
+	current_pet_state.sprite = current_pet_state.def->sprite;
 
 	SPAM(("LOADED PET!\n"));
 	SPAM(("ID: %d\n", pet_id));
@@ -211,7 +228,7 @@ static void load_or_create_pet(void) {
 
 	if (current_pet_state.dead) {
 		current_pet_state.mood = current_pet_state.hunger = 0;
-		current_pet_state.sprite = &current_pet_state.def->dead_sprite;
+		update_pet_frame(0); // make sure the frame changes to the dead frame
 	}
 }
 
@@ -226,14 +243,14 @@ feed_pet(void) {
 
 static void 
 play_with_pet(void) {
-	current_pet_state.mood += (rand() % (current_pet_state.mood_trait/10)+1) +1;
+	current_pet_state.mood += rand() % (current_pet_state.mood_trait/10 +1) +1;
 	if (current_pet_state.mood > PET_STAT_MAX) 
 		current_pet_state.mood = PET_STAT_MAX;
 }
 
 static void
 glitch_pet_sprite(VMUINT8* res_data) {
-	glitch_pet_resource(res_data, current_pet_state.glitch);
+//	glitch_pet_resource(res_data, current_pet_state.glitch);
 }
 
 //////////// TIMERS
@@ -347,7 +364,6 @@ float calc_watch_font_width(nk_handle _, float h, const char* str, int len) {
 
 static void
 game_sys_event_handler(VMINT message, VMINT param) {
-	int t;
 	if (message == VM_MSG_QUIT) {
 		save_pet_data();
 	}
@@ -359,8 +375,6 @@ game_sys_event_handler(VMINT message, VMINT param) {
 
 void vm_main(void) {
 	VMUINT time;
-	int i;
-
 	vm_gb2312_to_ucs2(wide_save_file_name, MRE_FILE_NAME_SIZE, (VMSTR)SAVE_FILE_NAME);
 
 	if(!vm_get_curr_utc(&time)) {
@@ -369,6 +383,8 @@ void vm_main(void) {
 
 	srand(time);
 
+	init_sprites();
+	init_pets();
 	init_views();
 	vm_res_init();
 
