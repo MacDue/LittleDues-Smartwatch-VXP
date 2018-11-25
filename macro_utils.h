@@ -6,6 +6,7 @@
 #define NK_TXT(txt) txt, strlen(txt)
 #define NK_TXT_PAD(txt) txt" "
 #define RAND(max) (rand() % max)
+#define RANDRANGE(min, max) (RAND(max + 1 - min) + min)
 #define M_PI 3.14
 
 #define DEG_TO_RAD 0.0174533

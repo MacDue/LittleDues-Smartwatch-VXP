@@ -113,7 +113,7 @@ save_pet_data(void) {
 static void apply_time_to_game(VMUINT save_time) {
 	VMUINT current_time;
 	VMUINT time_diff;
-	VMUINT time_attrition;
+	float time_attrition;
 	VMINT mood_loss, hunger_increase, drop_chances, drop;
 
 	(void) vm_get_curr_utc(&current_time); // assume the clock works
@@ -122,7 +122,7 @@ static void apply_time_to_game(VMUINT save_time) {
 	time_diff = current_time - save_time;
 	current_pet_state.age += (float)time_diff/60/60; // pet age is in hours
 	
-	time_attrition = (time_diff/3 + rand() % time_diff)/60;
+	time_attrition = (time_diff/2 + rand() % time_diff)/60;
 	
 	// Gives about 10 hours until the pet will die
 	mood_loss = (VMINT)(time_attrition * (float)current_pet_state.mood_trait/1000);
@@ -190,8 +190,8 @@ static void load_or_create_pet(void) {
 		current_pet_state.age			= 0;
 		current_pet_state.mood			= PET_STAT_MAX;
 		current_pet_state.hunger		= PET_STAT_MAX;
-		current_pet_state.mood_trait	= RAND(100) + 1;
-		current_pet_state.hunger_trait	= RAND(100) + 1;
+		current_pet_state.mood_trait	= RANDRANGE(1, 100);
+		current_pet_state.hunger_trait	= RANDRANGE(1, 100);
 		current_pet_state.dead			= false;
 		current_pet_state.glitch        = 0;
 		if (RAND(100) < 5) {
